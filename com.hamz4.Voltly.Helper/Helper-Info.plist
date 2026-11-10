@@ -3,16 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.davidwernhart.Helper</string>
+	<string>com.hamz4.Voltly.Helper</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>com.davidwernhart.Helper</string>
+	<string>com.hamz4.Voltly.Helper</string>
 	<key>CFBundleVersion</key>
 	<string>10</string>
 	<key>SMAuthorizedClients</key>
 	<array>
-		<string>identifier "com.davidwernhart.Voltly" and anchor apple generic and certificate leaf[subject.CN] = "Apple Development: david.wernhart96@gmail.com (GSDX9BQ584)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+		<string>identifier "com.hamz4.Voltly" and anchor apple generic and certificate leaf[subject.OU] = "3B593D7ZD5" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 	</array>
 </dict>
 </plist>

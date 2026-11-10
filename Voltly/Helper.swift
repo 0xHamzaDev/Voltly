@@ -33,7 +33,7 @@ final class Helper {
 
 
     lazy var helperToolConnection: NSXPCConnection = {
-        let connection = NSXPCConnection(machServiceName: "com.davidwernhart.Helper.mach", options: .privileged)
+        let connection = NSXPCConnection(machServiceName: "com.hamz4.Voltly.Helper.mach", options: .privileged)
         connection.remoteObjectInterface = NSXPCInterface(with: HelperToolProtocol.self)
 
         connection.resume()
@@ -159,7 +159,7 @@ final class Helper {
     @objc func installHelper() {
         print("trying to install helper!")
         var status = noErr
-        let helperID = "com.davidwernhart.Helper" as CFString // Prefs.helperID as CFString
+        let helperID = "com.hamz4.Voltly.Helper" as CFString // Prefs.helperID as CFString
 
         var authItem = kSMRightBlessPrivilegedHelper.withCString {
             AuthorizationItem(name: $0, valueLength: 0, value: nil, flags: 0)

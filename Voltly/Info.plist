@@ -38,8 +38,8 @@
 	<false/>
 	<key>SMPrivilegedExecutables</key>
 	<dict>
-		<key>com.davidwernhart.Helper</key>
-		<string>identifier "com.davidwernhart.Helper" and anchor apple generic and certificate leaf[subject.CN] = "Apple Development: david.wernhart96@gmail.com (GSDX9BQ584)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+		<key>com.hamz4.Voltly.Helper</key>
+		<string>identifier "com.hamz4.Voltly.Helper" and anchor apple generic and certificate leaf[subject.OU] = "3B593D7ZD5" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 	</dict>
 </dict>
 </plist>

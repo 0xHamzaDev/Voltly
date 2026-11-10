@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		505E96C92586211600DAA405 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 505E96C82586211600DAA405 /* LaunchAtLogin */; };
-		9224A08723F1F70600961AC4 /* com.davidwernhart.Helper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9283741823F1F34400B8AE7A /* com.davidwernhart.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		9224A08723F1F70600961AC4 /* com.hamz4.Voltly.Helper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9283741823F1F34400B8AE7A /* com.hamz4.Voltly.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		927DBFC923F5478E00F8BF0D /* HelperToolProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBFC823F5478E00F8BF0D /* HelperToolProtocol.swift */; };
 		927DBFCA23F5478E00F8BF0D /* HelperToolProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBFC823F5478E00F8BF0D /* HelperToolProtocol.swift */; };
 		9283741B23F1F34400B8AE7A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9283741A23F1F34400B8AE7A /* main.swift */; };
@@ -30,7 +30,7 @@
 			dstPath = Contents/Library/LaunchServices;
 			dstSubfolderSpec = 1;
 			files = (
-				9224A08723F1F70600961AC4 /* com.davidwernhart.Helper in CopyFiles */,
+				9224A08723F1F70600961AC4 /* com.hamz4.Voltly.Helper in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,7 +40,7 @@
 		927DBFC623F533FB00F8BF0D /* Helper-Launchd.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Helper-Launchd.plist"; sourceTree = "<group>"; };
 		927DBFC823F5478E00F8BF0D /* HelperToolProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperToolProtocol.swift; sourceTree = "<group>"; };
 		927DBFCB23F54C2C00F8BF0D /* HelperTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperTool.swift; sourceTree = "<group>"; };
-		9283741823F1F34400B8AE7A /* com.davidwernhart.Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.davidwernhart.Helper; sourceTree = BUILT_PRODUCTS_DIR; };
+		9283741823F1F34400B8AE7A /* com.hamz4.Voltly.Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.hamz4.Voltly.Helper; sourceTree = BUILT_PRODUCTS_DIR; };
 		9283741A23F1F34400B8AE7A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		9283741F23F1F38100B8AE7A /* Helper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Helper-Info.plist"; sourceTree = "<group>"; };
 		928674BF25D07BA300EC79C1 /* PersistanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistanceManager.swift; sourceTree = "<group>"; };
@@ -75,7 +75,7 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
-		9283741923F1F34400B8AE7A /* com.davidwernhart.Helper */ = {
+		9283741923F1F34400B8AE7A /* com.hamz4.Voltly.Helper */ = {
 			isa = PBXGroup;
 			children = (
 				9283741A23F1F34400B8AE7A /* main.swift */,
@@ -84,7 +84,7 @@
 				927DBFCB23F54C2C00F8BF0D /* HelperTool.swift */,
 				92ACA12D23F5F861003512DC /* SMC.swift */,
 			);
-			path = com.davidwernhart.Helper;
+			path = com.hamz4.Voltly.Helper;
 			sourceTree = "<group>";
 		};
 		92981ECE23F08D9B00C05424 = {
@@ -92,7 +92,7 @@
 			children = (
 				927DBFC723F545AF00F8BF0D /* Common */,
 				92981ED923F08D9B00C05424 /* Voltly */,
-				9283741923F1F34400B8AE7A /* com.davidwernhart.Helper */,
+				9283741923F1F34400B8AE7A /* com.hamz4.Voltly.Helper */,
 				92981ED823F08D9B00C05424 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -101,7 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				92981ED723F08D9B00C05424 /* Voltly.app */,
-				9283741823F1F34400B8AE7A /* com.davidwernhart.Helper */,
+				9283741823F1F34400B8AE7A /* com.hamz4.Voltly.Helper */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -132,9 +132,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9283741723F1F34400B8AE7A /* com.davidwernhart.Helper */ = {
+		9283741723F1F34400B8AE7A /* com.hamz4.Voltly.Helper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9283741C23F1F34400B8AE7A /* Build configuration list for PBXNativeTarget "com.davidwernhart.Helper" */;
+			buildConfigurationList = 9283741C23F1F34400B8AE7A /* Build configuration list for PBXNativeTarget "com.hamz4.Voltly.Helper" */;
 			buildPhases = (
 				9283741423F1F34400B8AE7A /* Sources */,
 			);
@@ -142,9 +142,9 @@
 			);
 			dependencies = (
 			);
-			name = com.davidwernhart.Helper;
-			productName = com.davidwernhart.Helper;
-			productReference = 9283741823F1F34400B8AE7A /* com.davidwernhart.Helper */;
+			name = com.hamz4.Voltly.Helper;
+			productName = com.hamz4.Voltly.Helper;
+			productReference = 9283741823F1F34400B8AE7A /* com.hamz4.Voltly.Helper */;
 			productType = "com.apple.product-type.tool";
 		};
 		92981ED623F08D9B00C05424 /* Voltly */ = {
@@ -204,7 +204,7 @@
 			projectRoot = "";
 			targets = (
 				92981ED623F08D9B00C05424 /* Voltly */,
-				9283741723F1F34400B8AE7A /* com.davidwernhart.Helper */,
+				9283741723F1F34400B8AE7A /* com.hamz4.Voltly.Helper */,
 			);
 		};
 /* End PBXProject section */
@@ -285,27 +285,27 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 10;
-				DEVELOPMENT_TEAM = 56C2L92EKW;
+				DEVELOPMENT_TEAM = 3B593D7ZD5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXCLUDED_ARCHS = "";
 				"EXCLUDED_ARCHS[sdk=*]" = "";
-				INFOPLIST_FILE = "com.davidwernhart.Helper/Helper-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				INFOPLIST_FILE = "com.hamz4.Voltly.Helper/Helper-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 4.3;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"$(SRCROOT)/com.davidwernhart.Helper/Helper-Info.plist",
+					"$(SRCROOT)/com.hamz4.Voltly.Helper/Helper-Info.plist",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"$(SRCROOT)/com.davidwernhart.Helper/Helper-Launchd.plist",
+					"$(SRCROOT)/com.hamz4.Voltly.Helper/Helper-Launchd.plist",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.davidwernhart.Helper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hamz4.Voltly.Helper;
 				PRODUCT_MODULE_NAME = VoltlyHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -318,26 +318,26 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 10;
-				DEVELOPMENT_TEAM = 56C2L92EKW;
+				DEVELOPMENT_TEAM = 3B593D7ZD5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXCLUDED_ARCHS = "";
-				INFOPLIST_FILE = "com.davidwernhart.Helper/Helper-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				INFOPLIST_FILE = "com.hamz4.Voltly.Helper/Helper-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 4.3;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"$(SRCROOT)/com.davidwernhart.Helper/Helper-Info.plist",
+					"$(SRCROOT)/com.hamz4.Voltly.Helper/Helper-Info.plist",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"$(SRCROOT)/com.davidwernhart.Helper/Helper-Launchd.plist",
+					"$(SRCROOT)/com.hamz4.Voltly.Helper/Helper-Launchd.plist",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.davidwernhart.Helper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hamz4.Voltly.Helper;
 				PRODUCT_MODULE_NAME = VoltlyHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -396,7 +396,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -451,7 +451,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -464,12 +464,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"Voltly/Preview Content\"";
-				DEVELOPMENT_TEAM = 56C2L92EKW;
+				DEVELOPMENT_TEAM = 3B593D7ZD5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Voltly/Info.plist;
@@ -477,9 +477,9 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = "2.0 Alpha";
-				PRODUCT_BUNDLE_IDENTIFIER = com.davidwernhart.Voltly;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hamz4.Voltly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -490,12 +490,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"Voltly/Preview Content\"";
-				DEVELOPMENT_TEAM = 56C2L92EKW;
+				DEVELOPMENT_TEAM = 3B593D7ZD5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Voltly/Info.plist;
@@ -503,9 +503,9 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = "2.0 Alpha";
-				PRODUCT_BUNDLE_IDENTIFIER = com.davidwernhart.Voltly;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hamz4.Voltly;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -515,7 +515,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9283741C23F1F34400B8AE7A /* Build configuration list for PBXNativeTarget "com.davidwernhart.Helper" */ = {
+		9283741C23F1F34400B8AE7A /* Build configuration list for PBXNativeTarget "com.hamz4.Voltly.Helper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9283741D23F1F34400B8AE7A /* Debug */,

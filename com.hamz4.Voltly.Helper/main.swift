@@ -1,6 +1,6 @@
 //
 //  main.swift
-//  com.davidwernhart.Helper
+//  com.hamz4.Voltly.Helper
 //
 //  Created by David Wernhart on 10.02.20.
 //  Copyright © 2020 David Wernhart. All rights reserved.
@@ -19,7 +19,7 @@ final class HelperDelegate: NSObject, NSXPCListenerDelegate {
 }
 
 let delegate = HelperDelegate()
-let listener = NSXPCListener(machServiceName: "com.davidwernhart.Helper.mach")
+let listener = NSXPCListener(machServiceName: "com.hamz4.Voltly.Helper.mach")
 listener.delegate = delegate
 listener.resume()
 var hasChecked = false
@@ -28,7 +28,7 @@ Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { timer in
     let applications = workspace.runningApplications
     var foundApp = false
     for app in applications {
-        if(app.bundleIdentifier?.elementsEqual("com.davidwernhart.Voltly") == true){
+        if(app.bundleIdentifier?.elementsEqual("com.hamz4.Voltly") == true){
             foundApp = true
         }
     }

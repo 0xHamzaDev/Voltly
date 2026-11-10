@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.davidwernhart.Helper</string>
+    <string>com.hamz4.Voltly.Helper</string>
     <key>MachServices</key>
     <dict>
-        <key>com.davidwernhart.Helper.mach</key>
+        <key>com.hamz4.Voltly.Helper.mach</key>
         <true/>
     </dict>
 </dict>
