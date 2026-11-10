@@ -99,7 +99,7 @@ struct SettingsView: View {
     @AppStorage(Key.limit) private var limit = 80
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
-    private let capabilities = Helper.instance.capabilities
+    private var capabilities: [String: Bool] { Helper.instance.capabilities }
 
     private var tasks: Binding<[ScheduledTask]> {
         Binding(

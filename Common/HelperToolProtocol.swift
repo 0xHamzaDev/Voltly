@@ -23,5 +23,5 @@ let helperVersion: String = "11" //for some reason the integrated version check 
     func batteryTemperature(withReply reply: @escaping (Double) -> Void)
 
     func setBCLM(_ value: UInt8)
-    func readBCLM(withReply reply: @escaping (UInt8) -> Void)
+    func reset()
 }

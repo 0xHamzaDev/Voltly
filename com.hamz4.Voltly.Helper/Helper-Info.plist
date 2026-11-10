@@ -9,7 +9,7 @@
 	<key>CFBundleName</key>
 	<string>com.hamz4.Voltly.Helper</string>
 	<key>CFBundleVersion</key>
-	<string>10</string>
+	<string>11</string>
 	<key>SMAuthorizedClients</key>
 	<array>
 		<string>identifier "com.hamz4.Voltly" and anchor apple generic and certificate leaf[subject.OU] = "XSP5VLG46P" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>

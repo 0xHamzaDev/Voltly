@@ -236,6 +236,9 @@ final class Controller: ObservableObject {
     }
 
     func setMode(_ mode: Mode) {
+        let capabilities = Helper.instance.capabilities
+        let canDischarge = capabilities["adapter"] == true || capabilities["native"] == true
+        guard canDischarge || mode == .normal || mode == .topUp else { return }
         state.mode = mode
         tick()
     }
@@ -273,11 +276,6 @@ final class Controller: ObservableObject {
         guard Helper.instance.isInitialized, let helper = Helper.instance.proxy else { return }
         runSchedule()
 
-        if defaults.bool(forKey: Key.classicKey) {
-            status = "Classic SMC key mode. Final charge can differ by up to 5%"
-            return
-        }
-
         let config = Config(
             limit: defaults.integer(forKey: Key.limit),
             sailing: defaults.bool(forKey: Key.sailing),
@@ -290,12 +288,15 @@ final class Controller: ObservableObject {
         )
         if config.heatProtection {
             helper.batteryTemperature { temperature in
-                DispatchQueue.main.async { self.temperature = temperature }
+                DispatchQueue.main.async { if temperature > 0 { self.temperature = temperature } }
             }
         }
 
+        let classicKey = defaults.bool(forKey: Key.classicKey)
         var next = state
-        let decision = decide(config, percent: percent, temperature: temperature, lidClosed: lidClosed(), sleeping: sleeping, now: Date(), state: &next)
+        let decision = classicKey
+            ? Decision(chargeTo: 100)
+            : decide(config, percent: percent, temperature: temperature, lidClosed: lidClosed(), sleeping: sleeping, now: Date(), state: &next)
         state = next
 
         let capabilities = Helper.instance.capabilities
@@ -340,7 +341,9 @@ final class Controller: ObservableObject {
             sleepAssertion = nil
         }
 
-        status = statusText(decision, charging: charging, plugged: plugged, capabilities: capabilities)
+        status = classicKey
+            ? "Classic SMC key mode. Final charge can differ by up to 5%"
+            : statusText(decision, charging: charging, plugged: plugged, capabilities: capabilities)
     }
 
     private func statusText(_ decision: Decision, charging: Bool, plugged: Bool, capabilities: [String: Bool]) -> String {

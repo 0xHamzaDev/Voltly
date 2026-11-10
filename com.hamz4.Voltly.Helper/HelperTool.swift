@@ -90,8 +90,8 @@ final class HelperTool: NSObject, HelperToolProtocol {
     private var originalNativeLimit: Int?
     private var originalBCLM: UInt8?
 
-    private lazy var hasDirectCharging = read("CHTE") != nil || (read("CH0B") != nil && read("CH0C") != nil)
-    private lazy var adapterKey = ["CH0I", "CH0J", "CHIE"].first { read($0) != nil }
+    private lazy var hasDirectCharging = writable("CHTE") || (writable("CH0B") && writable("CH0C"))
+    private lazy var adapterKey = ["CH0I", "CH0J", "CHIE"].first(where: writable)
 
     private func key(_ name: String) -> SMCKey? {
         guard smcOpened, name.utf8.count == 4 else { return nil }
@@ -113,6 +113,11 @@ final class HelperTool: NSObject, HelperToolProtocol {
         return (try? SMCKit.writeData(key, data: data)) != nil
     }
 
+    private func writable(_ name: String) -> Bool {
+        guard let current = read(name) else { return false }
+        return write(name, current)
+    }
+
     func getVersion(withReply reply: (String) -> Void) {
 //        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString" as String) as? String ?? "(unknown version)"
 //        let build = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "(unknown build)"
@@ -126,7 +131,7 @@ final class HelperTool: NSObject, HelperToolProtocol {
             "charging": hasDirectCharging,
             "native": !hasDirectCharging && PowerUI.supported,
             "adapter": adapterKey != nil,
-            "led": read("ACLC") != nil,
+            "led": writable("ACLC"),
         ])
     }
 
@@ -144,6 +149,7 @@ final class HelperTool: NSObject, HelperToolProtocol {
         if originalNativeLimit == nil {
             originalNativeLimit = PowerUI.limit
         }
+        guard originalNativeLimit != nil else { return }
         PowerUI.setLimit(min(max(limit, 10), 100))
     }
 
@@ -179,10 +185,6 @@ final class HelperTool: NSObject, HelperToolProtocol {
             originalBCLM = read("BCLM")?.first
         }
         write("BCLM", [min(max(value, 20), 100)])
-    }
-
-    func readBCLM(withReply reply: @escaping (UInt8) -> Void) {
-        reply(read("BCLM")?.first ?? 0)
     }
 
     func reset(){

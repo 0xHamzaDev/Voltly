@@ -19,6 +19,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
     private var observers: [AnyCancellable] = []
 
+    func applicationWillTerminate(_ aNotification: Notification) {
+        Helper.instance.proxy?.reset()
+    }
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         if CommandLine.arguments.contains("--self-check") {
             selfCheck()
@@ -50,7 +54,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 Controller.shared.tick()
             }
             else{
-                Helper.instance.installHelper()
+                DispatchQueue.main.async { Helper.instance.installHelper() }
             }
         }
     }
