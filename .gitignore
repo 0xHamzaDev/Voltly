@@ -4,3 +4,9 @@ Voltly.xcodeproj/-Xcc/
 build/
 DerivedData/
 .env
+node_modules/
+website/dist/
+website/.output/
+website/.tanstack/
+website/.vinxi/
+website/.nitro/
