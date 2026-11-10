@@ -1,0 +1,91 @@
+<div align="center">
+    <img src="Voltly/Assets.xcassets/AppIcon.appiconset/512pt_Mac_1x.png" width=200 height=200>
+    <h1>Voltly - Battery Care & Monitoring</h1>
+    <p>
+        <a href="https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/releases/latest"><img src="https://img.shields.io/github/v/release/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring?label=version" alt="Latest version"></a>
+        <a href="https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/releases"><img src="https://img.shields.io/github/downloads/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/total" alt="Downloads"></a>
+        <a href="https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/stargazers"><img src="https://img.shields.io/github/stars/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring?style=flat" alt="GitHub stars"></a>
+        <a href="https://apphousekitchen.com/pricing/"><img src="https://img.shields.io/badge/macOS-12%2B-blue?logo=apple" alt="macOS 12+"></a>
+        <a href="https://formulae.brew.sh/cask/aldente"><img src="https://img.shields.io/homebrew/cask/v/aldente" alt="Homebrew cask"></a>
+    </p>
+</div>
+
+_macOS menu bar app to limit the maximum charging percentage and improve your MacBook's battery lifespan_
+
+#### Don't overcook your battery! Keep it fresh and chewy with Voltly.
+
+## About this repository
+
+Voltly is no longer open source. The current version of Voltly is proprietary and closed-source.
+
+We use this repository for:
+* **Releases:** Download the latest version of Voltly under [Releases](https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/releases).
+* **Bug reports and feature requests:** Please use the [Issues](https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/issues) section.
+* **Questions:** Please use the [Discussions](https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/discussions) section.
+
+The source code in this repository is legacy code from an older, open-source version of Voltly. It is no longer maintained and does not reflect the current version of the app.
+
+## Why do I need this?
+
+Lithium-ion batteries, like the one in your MacBook, last the longest when they are not kept at 100% for long periods of time. Keeping your battery at a lower charge level, for example 80%, while your MacBook is plugged in can significantly extend its lifespan. More information can be found at [Battery University](https://batteryuniversity.com/article/bu-415-how-to-charge-and-when-to-charge).
+
+## Voltly Free
+
+* **Charge Limiter:** Set the maximum charging percentage of your MacBook. Read more in ["Feature Explanation: Charge Limiter"](https://apphousekitchen.com/feature-explanation-charge-limiter/).
+* **Discharge:** Run your MacBook on battery even while it is plugged in, to actively discharge it to your charge limit. Read more in ["Feature Explanation: Discharge"](https://apphousekitchen.com/feature-explanation-discharge/).
+
+## Voltly Pro
+
+Voltly Pro offers many more features, for example:
+
+* Automatic Discharge and Discharge in Clamshell Mode
+* Heat Protection
+* Sailing Mode
+* Top Up
+* Calibration Mode
+* Control of the MagSafe LED
+* Apple Shortcuts support
+* Customizable menu bar icons and pop-up window
+* Email support
+
+You can find all features and prices on our [website](https://apphousekitchen.com/pricing/). Voltly Pro is also available on [Setapp](https://apphousekitchen.com/pricing/).
+
+## Requirements
+
+* macOS 12 Monterey or later (up to macOS 27 Golden Gate)
+* A supported Apple silicon or Intel MacBook. You can check if your MacBook is supported on our [website](https://apphousekitchen.com/pricing/).
+
+## Download & Installation
+
+* Download the latest version under [Releases](https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/releases) or on our [website](https://apphousekitchen.com/).
+* Or install it with [Homebrew](https://brew.sh/): `brew install --cask aldente`
+
+You can find a step-by-step guide in our [Installation Guide](https://apphousekitchen.com/installation-guide/).
+
+## How to use
+
+After the installation, click on the Voltly icon in your menu bar and set your desired charge limit, for example 80%. Once your battery reaches the charge limit, your MacBook is powered by the power adapter, and the battery is no longer charging.
+
+On Apple silicon MacBooks, charge limits below 80% can be enabled in the Charge Settings of Voltly.
+
+**Battery calibration:** Keeping your battery at a low charge level for a long time can disturb the battery calibration. Your MacBook might then show a lower capacity or turn off earlier than expected, even though the battery itself is fine. To prevent this, we recommend a full charge cycle (0% to 100%) from time to time, or using the Calibration Mode of Voltly Pro. Newer macOS versions also run an automatic battery calibration, during which macOS temporarily charges the battery to 100%. You can read more about it in [#1846](https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/issues/1846).
+
+## Support
+
+* Most questions are already answered in our [FAQ](https://apphousekitchen.com/faq/) and on our [blog](https://apphousekitchen.com/blog/).
+* **Bug reports:** Please open an [issue](https://github.com/AppHouseKitchen/AlDente-Battery_Care_and_Monitoring/issues) and include a debug file. You can find a guide on [How to generate and share a debug file](https://apphousekitchen.com/how-to-generate-and-share-a-debug-file/) on our blog.
+* **Email support** is available for Voltly Pro customers through the Help & Support page within Voltly or our [support page](https://apphousekitchen.com/support/).
+
+## Legacy code
+
+The legacy code in this repository uses the following open-source projects:
+* <https://github.com/beltex/SMCKit>
+* <https://github.com/sindresorhus/LaunchAtLogin>
+* <https://github.com/andreyvit/create-dmg>
+
+## Disclaimer
+
+
+Copyright © 2020–2026 AppHouseKitchen GmbH
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
