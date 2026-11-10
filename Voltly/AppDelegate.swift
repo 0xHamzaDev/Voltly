@@ -24,6 +24,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        #if DEBUG
+        if let index = CommandLine.arguments.firstIndex(of: "--snapshot"), CommandLine.arguments.count > index + 1 {
+            Controller.shared.tick()
+            let folder = URL(fileURLWithPath: CommandLine.arguments[index + 1])
+            snapshot(ContentView().background(Color(nsColor: .windowBackgroundColor)), to: folder.appendingPathComponent("popover.png"))
+            snapshot(SettingsView(), to: folder.appendingPathComponent("settings.png"))
+            exit(0)
+        }
+        #endif
         if CommandLine.arguments.contains("--self-check") {
             selfCheck()
             print("self-check passed")
@@ -59,12 +68,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    #if DEBUG
+    private func snapshot<Content: View>(_ view: Content, to url: URL) {
+        let host = NSHostingView(rootView: view)
+        host.frame = NSRect(origin: .zero, size: host.fittingSize)
+        let window = NSWindow(contentRect: host.frame, styleMask: [.titled], backing: .buffered, defer: false)
+        window.contentView = host
+        host.layoutSubtreeIfNeeded()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { return }
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        try? bitmap.representation(using: .png, properties: [:])?.write(to: url)
+    }
+    #endif
+
     private func updateStatusItem(percent: Int) {
         let defaults = UserDefaults.standard
-        let icon = defaults.string(forKey: Key.menuIcon) ?? "voltly"
-        statusBarItem.button?.image = icon == "voltly"
-            ? NSImage(named: "menubaricon")
-            : NSImage(systemSymbolName: icon, accessibilityDescription: "Voltly")
+        let icon = defaults.string(forKey: Key.menuIcon) ?? Key.defaultMenuIcon
+        statusBarItem.button?.image = NSImage(systemSymbolName: icon, accessibilityDescription: "Voltly")
+            ?? NSImage(systemSymbolName: Key.defaultMenuIcon, accessibilityDescription: "Voltly")
         statusBarItem.button?.title = defaults.bool(forKey: Key.menuPercent) ? " \(percent)%" : ""
     }
 

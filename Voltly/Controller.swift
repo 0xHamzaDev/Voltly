@@ -23,9 +23,11 @@ enum Key {
     static let showActions = "showActions"
     static let showToggles = "showToggles"
 
+    static let defaultMenuIcon = "bolt.batteryblock.fill"
+
     static let defaults: [String: Any] = [
         limit: 80, sailRange: 5, maxTemperature: 35, preventSleep: true,
-        menuIcon: "voltly", showStatus: true, showActions: true, showToggles: true,
+        menuIcon: defaultMenuIcon, showStatus: true, showActions: true, showToggles: true,
     ]
 }
 
