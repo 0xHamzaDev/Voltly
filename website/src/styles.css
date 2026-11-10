@@ -1,7 +1,25 @@
-@import '@fontsource/ibm-plex-sans-arabic/400.css';
-@import '@fontsource/ibm-plex-sans-arabic/600.css';
-@import '@fontsource/ibm-plex-sans-arabic/700.css';
 @import 'tailwindcss';
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('./fonts/thmanyahsans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('./fonts/thmanyahsans-Medium.woff2') format('woff2');
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('./fonts/thmanyahsans-Bold.woff2') format('woff2');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   color-scheme: light;
@@ -30,8 +48,9 @@
 }
 
 :root:lang(ar) {
-  --font: 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --round: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font: 'Thmanyah Sans', system-ui, sans-serif;
+  --round: 'Thmanyah Sans', system-ui, sans-serif;
+  --mono: 'Thmanyah Sans', ui-monospace, 'SF Mono', Menlo, monospace;
 }
 
 :root[dir='rtl'] {
