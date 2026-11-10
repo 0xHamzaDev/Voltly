@@ -7,25 +7,8 @@
 //
 
 import AppKit
+import Combine
 import SwiftUI
-import LaunchAtLogin
-import Foundation
-import IOKit.ps
-import IOKit.pwr_mgt
-
-extension ProcessInfo {
-        /// Returns a `String` representing the machine hardware name or nil if there was an error invoking `uname(_:)` or decoding the response.
-        ///
-        /// Return value is the equivalent to running `$ uname -m` in shell.
-        var machineHardwareName: String? {
-                var sysinfo = utsname()
-                let result = uname(&sysinfo)
-                guard result == EXIT_SUCCESS else { return nil }
-                let data = Data(bytes: &sysinfo.machine, count: Int(_SYS_NAMELEN))
-                guard let identifier = String(bytes: data, encoding: .ascii) else { return nil }
-                return identifier.trimmingCharacters(in: .controlCharacters)
-        }
-}
 
 @NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -33,94 +16,72 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     //var window: NSWindow!
     var statusBarItem: NSStatusItem!
     var popover: NSPopover!
-    
-    func applicationWillTerminate(_ aNotification: Notification) {
-        Helper.instance.enableSleep()
-        Helper.instance.enableCharging()
-    }
+    private var settingsWindow: NSWindow?
+    private var observers: [AnyCancellable] = []
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        if CommandLine.arguments.contains("--self-check") {
+            selfCheck()
+            print("self-check passed")
+            exit(0)
+        }
 
-        let contentView = ContentView()
+        let hosting = NSHostingController(rootView: ContentView())
+        hosting.sizingOptions = .preferredContentSize
 
         // Create the popover
         let popover = NSPopover()
-        popover.contentSize = NSSize(width: 400, height: 600)
         popover.behavior = .transient
-        popover.contentViewController = NSHostingController(rootView: contentView)
+        popover.contentViewController = hosting
         self.popover = popover
 
-        let statusBar = NSStatusBar.system
-        statusBarItem = statusBar.statusItem(withLength: NSStatusItem.squareLength)
-        statusBarItem.button?.image = NSImage(named: "menubaricon")!
+        statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusBarItem.button?.action = #selector(togglePopover(_:))
-        
-        Helper.instance.setPlatformKey()
+        statusBarItem.button?.imagePosition = .imageLeading
+
+        Controller.shared.start()
+        Controller.shared.$percent.removeDuplicates().sink { [weak self] in self?.updateStatusItem(percent: $0) }.store(in: &observers)
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification).receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.updateStatusItem(percent: Controller.shared.percent) }.store(in: &observers)
 
         Helper.instance.checkHelperVersion{(foundHelper) in
             if(foundHelper){
                 print("helper found!")
+                Controller.shared.tick()
             }
             else{
                 Helper.instance.installHelper()
             }
         }
-        
-        LaunchAtLogin.isEnabled = true
-        SMCPresenter.shared.loadValue()
-        
-        Helper.instance.checkCharging()
-        
-        var actionMsg:String?
+    }
 
-        Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
-            if(Helper.instance.isInitialized){
-                Helper.instance.getChargingInfo { (Name, Capacity, IsCharging, MaxCapacity) in
-                    
-                    
-                    if(!PersistanceManager.instance.oldKey){
-                        if(Capacity < SMCPresenter.shared.value){
-                            actionMsg = "NEED TO CHARGE"
-                            if(Helper.instance.chargeInhibited){
-                                Helper.instance.enableCharging()
-                            }
-                            Helper.instance.disableSleep()
- 
-                        }
-                        else{
-                            actionMsg = "IS PERFECT"
-                            if(!Helper.instance.chargeInhibited){
-                                Helper.instance.disableCharging()
-                            }
-                            Helper.instance.enableSleep()
-                            
-                        }
-                        print("TARGET: ",SMCPresenter.shared.value,
-                              " CURRENT: ",String(Capacity),
-                              " ISCHARGING: ",String(IsCharging),
-                              " CHARGE INHIBITED: ",String(Helper.instance.chargeInhibited),
-                              " ACTION: ",actionMsg!)
-                    }
-                    else{
-                        print("BCLM MODE ENABLED")
-                    }
-                    
-                    
+    private func updateStatusItem(percent: Int) {
+        let defaults = UserDefaults.standard
+        let icon = defaults.string(forKey: Key.menuIcon) ?? "voltly"
+        statusBarItem.button?.image = icon == "voltly"
+            ? NSImage(named: "menubaricon")
+            : NSImage(systemSymbolName: icon, accessibilityDescription: "Voltly")
+        statusBarItem.button?.title = defaults.bool(forKey: Key.menuPercent) ? " \(percent)%" : ""
+    }
 
-                }
-                DispatchQueue.main.async {
-                    Helper.instance.setStatusString()
-                }
-                
-            }
+    func openSettings() {
+        popover.performClose(nil)
+        if settingsWindow == nil {
+            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
+            window.title = "Voltly Settings"
+            window.styleMask = [.titled, .closable]
+            window.isReleasedWhenClosed = false
+            settingsWindow = window
         }
-        
+        NSApp.activate(ignoringOtherApps: true)
+        settingsWindow?.center()
+        settingsWindow?.makeKeyAndOrderFront(nil)
     }
 
     @objc func togglePopover(_ sender: AnyObject?) {
         popover.contentViewController?.view.window?.becomeKey()
 
-        Helper.instance.setStatusString()
+        Controller.shared.tick()
         if let button = self.statusBarItem.button {
             if popover.isShown {
                 popover.performClose(sender)

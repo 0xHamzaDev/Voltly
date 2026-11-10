@@ -7,15 +7,112 @@
 //
 
 import Foundation
-import IOKit.pwr_mgt
+import notify
+
+private enum PowerUI {
+    private typealias ErrorPointer = AutoreleasingUnsafeMutablePointer<NSError?>
+
+    private static let client: NSObject? = {
+        guard dlopen("/System/Library/PrivateFrameworks/PowerUI.framework/Versions/A/PowerUI", RTLD_NOW) != nil,
+              let cls = NSClassFromString("PowerUISmartChargeClient") as? NSObject.Type,
+              let allocated = cls.perform(NSSelectorFromString("alloc"))?.takeUnretainedValue() as? NSObject,
+              allocated.responds(to: NSSelectorFromString("initWithClientName:")),
+              let instance = allocated.perform(NSSelectorFromString("initWithClientName:"), with: "Voltly")?.takeUnretainedValue() as? NSObject
+        else { return nil }
+        let required = ["isMCLSupported", "getMCLLimitWithError:", "setMCLLimit:error:", "isMCLCurrentlyEnabled:", "disableMCL:"]
+        return required.allSatisfy { instance.responds(to: NSSelectorFromString($0)) } ? instance : nil
+    }()
+
+    private static let domain = "com.apple.smartcharging.topoffprotection" as CFString
+
+    static var supported: Bool {
+        guard let client else { return false }
+        let selector = NSSelectorFromString("isMCLSupported")
+        typealias Function = @convention(c) (NSObject, Selector) -> Bool
+        return unsafeBitCast(client.method(for: selector), to: Function.self)(client, selector)
+    }
+
+    private static var acceptsExactTargets: Bool {
+        ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 27
+            && client?.responds(to: NSSelectorFromString("enableMCL:")) == true
+    }
+
+    private static func run(_ name: String) -> Bool {
+        guard let client else { return false }
+        let selector = NSSelectorFromString(name)
+        typealias Function = @convention(c) (NSObject, Selector, ErrorPointer) -> Bool
+        var error: NSError?
+        return unsafeBitCast(client.method(for: selector), to: Function.self)(client, selector, &error) && error == nil
+    }
+
+    static var limit: Int? {
+        guard let client else { return nil }
+        var error: NSError?
+        let enabledSelector = NSSelectorFromString("isMCLCurrentlyEnabled:")
+        typealias EnabledFunction = @convention(c) (NSObject, Selector, ErrorPointer) -> UInt64
+        let enabled = unsafeBitCast(client.method(for: enabledSelector), to: EnabledFunction.self)(client, enabledSelector, &error)
+        guard error == nil else { return nil }
+        guard enabled != 0 else { return 100 }
+        let limitSelector = NSSelectorFromString("getMCLLimitWithError:")
+        typealias LimitFunction = @convention(c) (NSObject, Selector, ErrorPointer) -> UInt8
+        let value = unsafeBitCast(client.method(for: limitSelector), to: LimitFunction.self)(client, limitSelector, &error)
+        return error == nil ? Int(value) : nil
+    }
+
+    static func setLimit(_ limit: Int) {
+        guard let client, supported else { return }
+        guard limit < 100 else {
+            _ = run("disableMCL:")
+            return
+        }
+        guard acceptsExactTargets else {
+            let selector = NSSelectorFromString("setMCLLimit:error:")
+            typealias Function = @convention(c) (NSObject, Selector, UInt8, ErrorPointer) -> Bool
+            var error: NSError?
+            _ = unsafeBitCast(client.method(for: selector), to: Function.self)(client, selector, UInt8(limit), &error)
+            return
+        }
+        if self.limit == 100 {
+            _ = run("enableMCL:")
+        }
+        CFPreferencesSetValue("MCLFeatureState" as CFString, 1 as CFNumber, domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+        CFPreferencesSetValue("mclLimitValue" as CFString, limit as CFNumber, domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+        CFPreferencesSynchronize(domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+        notify_post("com.apple.smartcharging.defaultschanged")
+    }
+}
 
 final class HelperTool: NSObject, HelperToolProtocol {
-    
+
     static let instance = HelperTool()
-    
-    var modifiedKeys: [String: UInt8] = [:]
-    var openAssertions: [IOPMAssertionID] = []
-    
+
+    private let smcOpened = (try? SMCKit.open()) != nil
+    private var originalNativeLimit: Int?
+    private var originalBCLM: UInt8?
+
+    private lazy var hasDirectCharging = read("CHTE") != nil || (read("CH0B") != nil && read("CH0C") != nil)
+    private lazy var adapterKey = ["CH0I", "CH0J", "CHIE"].first { read($0) != nil }
+
+    private func key(_ name: String) -> SMCKey? {
+        guard smcOpened, name.utf8.count == 4 else { return nil }
+        let code = FourCharCode(fromString: name)
+        guard let info = try? SMCKit.keyInformation(code), info.size > 0 else { return nil }
+        return SMCKey(code: code, info: info)
+    }
+
+    private func read(_ name: String) -> [UInt8]? {
+        guard let key = key(name), let data = try? SMCKit.readData(key) else { return nil }
+        return withUnsafeBytes(of: data) { Array($0.prefix(Int(key.info.size))) }
+    }
+
+    @discardableResult
+    private func write(_ name: String, _ values: [UInt8]) -> Bool {
+        guard let key = key(name) else { return false }
+        var data = SMCParamStruct().bytes
+        withUnsafeMutableBytes(of: &data) { $0.copyBytes(from: values.prefix($0.count)) }
+        return (try? SMCKit.writeData(key, data: data)) != nil
+    }
+
     func getVersion(withReply reply: (String) -> Void) {
 //        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString" as String) as? String ?? "(unknown version)"
 //        let build = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "(unknown build)"
@@ -24,103 +121,83 @@ final class HelperTool: NSObject, HelperToolProtocol {
 
     }
 
-    func setSMCByte(key: String, value: UInt8) {
-        do {
-            try SMCKit.open()
-        } catch {
-            print(error)
-            exit(EX_UNAVAILABLE)
-        }
-        let smcKey = SMCKit.getKey(key, type: DataTypes.UInt8)
-        let bytes: SMCBytes = (value, UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
-        UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
-        UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
-        UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
-        UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
-        UInt8(0), UInt8(0))
-        
-        if(self.modifiedKeys[key] == nil){
-            readSMCByte(key: key) { (originalValue) in
-                self.modifiedKeys[key] = originalValue
-                _ = try? SMCKit.writeData(smcKey, data: bytes)
-            }
-        }
-        else{
-            _ = try? SMCKit.writeData(smcKey, data: bytes)
-        }
-
-        
+    func capabilities(withReply reply: @escaping ([String: Bool]) -> Void) {
+        reply([
+            "charging": hasDirectCharging,
+            "native": !hasDirectCharging && PowerUI.supported,
+            "adapter": adapterKey != nil,
+            "led": read("ACLC") != nil,
+        ])
     }
 
-    func readSMCByte(key: String, withReply reply: @escaping (UInt8) -> Void) {
-        do {
-            try SMCKit.open()
-        } catch {
-            print(error)
-            exit(EX_UNAVAILABLE)
+    func setCharging(_ enabled: Bool) {
+        if read("CHTE") != nil {
+            write("CHTE", [enabled ? 0 : 1, 0, 0, 0])
+        } else {
+            write("CH0B", [enabled ? 0 : 2])
+            write("CH0C", [enabled ? 0 : 2])
         }
+    }
 
-        let smcKey = SMCKit.getKey(key, type: DataTypes.UInt8)
-        do {
-            let status = try SMCKit.readData(smcKey).0
-            reply(status)
-        } catch {
-            reply(0)
+    func setNativeLimit(_ limit: Int) {
+        guard !hasDirectCharging else { return }
+        if originalNativeLimit == nil {
+            originalNativeLimit = PowerUI.limit
         }
+        PowerUI.setLimit(min(max(limit, 10), 100))
     }
-    
-    func readSMCUInt32(key: String, withReply reply: @escaping (UInt32) -> Void) {
-        do {
-            try SMCKit.open()
-        } catch {
-            print(error)
-            exit(EX_UNAVAILABLE)
-        }
 
-        let smcKey = SMCKit.getKey(key, type: DataTypes.UInt32)
-        do {
-            let data = try SMCKit.readData(smcKey)
-            reply(UInt32(fromBytes: (data.0, data.1, data.2, data.3)))
-        } catch {
-            reply(0)
+    func setAdapter(_ enabled: Bool) {
+        guard let adapterKey else { return }
+        write(adapterKey, [enabled ? 0 : (adapterKey == "CHIE" ? 8 : 1)])
+    }
+
+    func setLED(_ value: UInt8) {
+        guard [0, 1, 3, 4].contains(value) else { return }
+        write("ACLC", [value])
+    }
+
+    func setLowPowerMode(_ enabled: Bool) {
+        let pmset = Process()
+        pmset.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
+        pmset.arguments = ["-a", "lowpowermode", enabled ? "1" : "0"]
+        try? pmset.run()
+    }
+
+    func batteryTemperature(withReply reply: @escaping (Double) -> Void) {
+        guard let bytes = read("TB0T"), bytes.count >= 2 else { return reply(0) }
+        if bytes.count == 4 {
+            let bits = UInt32(bytes[0]) | UInt32(bytes[1]) << 8 | UInt32(bytes[2]) << 16 | UInt32(bytes[3]) << 24
+            reply(Double(Float(bitPattern: bits)))
+        } else {
+            reply(Double(Int8(bitPattern: bytes[0])) + Double(bytes[1]) / 256)
         }
     }
-    
-    func createAssertion(assertion:String, withReply reply: @escaping (IOPMAssertionID) -> Void){
-        var assertionID : IOPMAssertionID = IOPMAssertionID(0)
-        let reason:CFString = "Voltly" as NSString
-        let cfAssertion:CFString = assertion as NSString
-        let success = IOPMAssertionCreateWithName(cfAssertion,
-                        IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                        reason,
-                        &assertionID)
-        if success == kIOReturnSuccess {
-            openAssertions.append(assertionID)
-            reply(assertionID)
+
+    func setBCLM(_ value: UInt8) {
+        if originalBCLM == nil {
+            originalBCLM = read("BCLM")?.first
         }
-        else{
-            reply (UInt32(kCFNumberNaN))
-        }
+        write("BCLM", [min(max(value, 20), 100)])
     }
-    
-    func releaseAssertion(assertionID:IOPMAssertionID){
-        IOPMAssertionRelease(assertionID)
-        openAssertions.remove(at: openAssertions.firstIndex(of: assertionID)!)
+
+    func readBCLM(withReply reply: @escaping (UInt8) -> Void) {
+        reply(read("BCLM")?.first ?? 0)
     }
-    
-    func setResetVal(key:String, value: UInt8){
-        modifiedKeys[key]=value
-    }
-    
+
     func reset(){
-        for (key, value) in modifiedKeys{
-            setSMCByte(key: key, value: value)
+        if hasDirectCharging {
+            setCharging(true)
         }
-        
-        for assertionID in openAssertions{
-            releaseAssertion(assertionID: assertionID)
+        setAdapter(true)
+        setLED(0)
+        if let originalNativeLimit {
+            PowerUI.setLimit(originalNativeLimit)
         }
-        modifiedKeys.removeAll()
-        openAssertions.removeAll()
+        if let originalBCLM {
+            write("BCLM", [originalBCLM])
+        }
+        originalNativeLimit = nil
+        originalBCLM = nil
     }
 }

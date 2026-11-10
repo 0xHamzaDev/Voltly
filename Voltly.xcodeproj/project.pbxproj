@@ -7,12 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		505E96C92586211600DAA405 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 505E96C82586211600DAA405 /* LaunchAtLogin */; };
 		9224A08723F1F70600961AC4 /* com.hamz4.Voltly.Helper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9283741823F1F34400B8AE7A /* com.hamz4.Voltly.Helper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		927DBFC923F5478E00F8BF0D /* HelperToolProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBFC823F5478E00F8BF0D /* HelperToolProtocol.swift */; };
 		927DBFCA23F5478E00F8BF0D /* HelperToolProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBFC823F5478E00F8BF0D /* HelperToolProtocol.swift */; };
 		9283741B23F1F34400B8AE7A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9283741A23F1F34400B8AE7A /* main.swift */; };
-		928674C025D07BA300EC79C1 /* PersistanceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928674BF25D07BA300EC79C1 /* PersistanceManager.swift */; };
+		928674C025D07BA300EC79C1 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928674BF25D07BA300EC79C1 /* Controller.swift */; };
 		92981EDB23F08D9B00C05424 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92981EDA23F08D9B00C05424 /* AppDelegate.swift */; };
 		92981EDD23F08D9B00C05424 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92981EDC23F08D9B00C05424 /* ContentView.swift */; };
 		92981EDF23F08D9C00C05424 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 92981EDE23F08D9C00C05424 /* Assets.xcassets */; };
@@ -20,6 +19,7 @@
 		92981EE523F08D9C00C05424 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 92981EE323F08D9C00C05424 /* Main.storyboard */; };
 		92ACA12B23F5F822003512DC /* HelperTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927DBFCB23F54C2C00F8BF0D /* HelperTool.swift */; };
 		92ACA12E23F5F861003512DC /* SMC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92ACA12D23F5F861003512DC /* SMC.swift */; };
+		92E24B4623F6DC0D00BE41ED /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E24B4523F6DC0D00BE41ED /* Intents.swift */; };
 		92E24B4123F6DC0D00BE41ED /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E24B4023F6DC0D00BE41ED /* Helper.swift */; };
 /* End PBXBuildFile section */
 
@@ -43,7 +43,7 @@
 		9283741823F1F34400B8AE7A /* com.hamz4.Voltly.Helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.hamz4.Voltly.Helper; sourceTree = BUILT_PRODUCTS_DIR; };
 		9283741A23F1F34400B8AE7A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		9283741F23F1F38100B8AE7A /* Helper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Helper-Info.plist"; sourceTree = "<group>"; };
-		928674BF25D07BA300EC79C1 /* PersistanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistanceManager.swift; sourceTree = "<group>"; };
+		928674BF25D07BA300EC79C1 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		92981ED723F08D9B00C05424 /* Voltly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Voltly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92981EDA23F08D9B00C05424 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		92981EDC23F08D9B00C05424 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -52,6 +52,7 @@
 		92981EE423F08D9C00C05424 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		92981EE623F08D9C00C05424 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		92ACA12D23F5F861003512DC /* SMC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMC.swift; sourceTree = "<group>"; };
+		92E24B4523F6DC0D00BE41ED /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		92E24B4023F6DC0D00BE41ED /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,7 +61,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				505E96C92586211600DAA405 /* LaunchAtLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,13 +110,14 @@
 			isa = PBXGroup;
 			children = (
 				92E24B4023F6DC0D00BE41ED /* Helper.swift */,
+				92E24B4523F6DC0D00BE41ED /* Intents.swift */,
 				92981EDA23F08D9B00C05424 /* AppDelegate.swift */,
 				92981EDC23F08D9B00C05424 /* ContentView.swift */,
 				92981EDE23F08D9C00C05424 /* Assets.xcassets */,
 				92981EE323F08D9C00C05424 /* Main.storyboard */,
 				92981EE623F08D9C00C05424 /* Info.plist */,
 				92981EE023F08D9C00C05424 /* Preview Content */,
-				928674BF25D07BA300EC79C1 /* PersistanceManager.swift */,
+				928674BF25D07BA300EC79C1 /* Controller.swift */,
 			);
 			path = Voltly;
 			sourceTree = "<group>";
@@ -155,7 +156,6 @@
 				92981ED423F08D9B00C05424 /* Frameworks */,
 				92981ED523F08D9B00C05424 /* Resources */,
 				9224A08623F1F6E300961AC4 /* CopyFiles */,
-				92E24B4423F847B500BE41ED /* LaunchAtLogin */,
 			);
 			buildRules = (
 			);
@@ -163,7 +163,6 @@
 			);
 			name = Voltly;
 			packageProductDependencies = (
-				505E96C82586211600DAA405 /* LaunchAtLogin */,
 			);
 			productName = Voltly;
 			productReference = 92981ED723F08D9B00C05424 /* Voltly.app */;
@@ -197,7 +196,6 @@
 			);
 			mainGroup = 92981ECE23F08D9B00C05424;
 			packageReferences = (
-				505E96C72586211600DAA405 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
 			);
 			productRefGroup = 92981ED823F08D9B00C05424 /* Products */;
 			projectDirPath = "";
@@ -223,24 +221,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		92E24B4423F847B500BE41ED /* LaunchAtLogin */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = LaunchAtLogin;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${BUILT_PRODUCTS_DIR}/LaunchAtLogin_LaunchAtLogin.bundle/Contents/Resources/copy-helper-swiftpm.sh\"\n";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -259,11 +239,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				928674C025D07BA300EC79C1 /* PersistanceManager.swift in Sources */,
+				928674C025D07BA300EC79C1 /* Controller.swift in Sources */,
 				927DBFC923F5478E00F8BF0D /* HelperToolProtocol.swift in Sources */,
 				92981EDD23F08D9B00C05424 /* ContentView.swift in Sources */,
 				92981EDB23F08D9B00C05424 /* AppDelegate.swift in Sources */,
 				92E24B4123F6DC0D00BE41ED /* Helper.swift in Sources */,
+				92E24B4623F6DC0D00BE41ED /* Intents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,7 +269,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 10;
-				DEVELOPMENT_TEAM = 3B593D7ZD5;
+				DEVELOPMENT_TEAM = XSP5VLG46P;
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXCLUDED_ARCHS = "";
 				"EXCLUDED_ARCHS[sdk=*]" = "";
@@ -321,7 +302,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 10;
-				DEVELOPMENT_TEAM = 3B593D7ZD5;
+				DEVELOPMENT_TEAM = XSP5VLG46P;
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXCLUDED_ARCHS = "";
 				INFOPLIST_FILE = "com.hamz4.Voltly.Helper/Helper-Info.plist";
@@ -469,7 +450,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"Voltly/Preview Content\"";
-				DEVELOPMENT_TEAM = 3B593D7ZD5;
+				DEVELOPMENT_TEAM = XSP5VLG46P;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Voltly/Info.plist;
@@ -495,7 +476,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"Voltly/Preview Content\"";
-				DEVELOPMENT_TEAM = 3B593D7ZD5;
+				DEVELOPMENT_TEAM = XSP5VLG46P;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Voltly/Info.plist;
@@ -545,22 +526,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		505E96C72586211600DAA405 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		505E96C82586211600DAA405 /* LaunchAtLogin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 505E96C72586211600DAA405 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
-			productName = LaunchAtLogin;
-		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 92981ECF23F08D9B00C05424 /* Project object */;

@@ -6,254 +6,211 @@
 //  Copyright © 2020 David Wernhart. All rights reserved.
 //
 
-import LaunchAtLogin
+import ServiceManagement
 import SwiftUI
 
-private struct BlueButtonStyle: ButtonStyle {
-    func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .foregroundColor(configuration.isPressed ? Color.blue : Color.white)
-            .background(configuration.isPressed ? Color.white : Color.blue)
-            .cornerRadius(6.0)
-            .padding()
-    }
-}
-
-private struct RedButtonStyle: ButtonStyle {
-    func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .foregroundColor(configuration.isPressed ? Color.red : Color.white)
-            .background(configuration.isPressed ? Color.white : Color.red)
-            .cornerRadius(6.0)
-            .padding()
-    }
-}
-
-private var allowDischarge = true
-
-private struct Settings: View {
-    @State private var launchAtLogin = LaunchAtLogin.isEnabled
-    @State private var oldKey = PersistanceManager.instance.oldKey
-    @ObservedObject private var presenter = SMCPresenter.shared
-
-    var body: some View {
-        VStack {
-            Spacer().frame(height: 15)
-            Text(presenter.status)
-            HStack {
-                VStack(alignment: .leading) {
-                    Toggle(isOn: Binding(
-                        get: { launchAtLogin },
-
-                        set: { newValue in
-                            launchAtLogin = newValue
-                            print("Launch at login turned \(newValue ? "on" : "off")!")
-                            LaunchAtLogin.isEnabled = newValue
-                        }
-                    )) {
-                        Text("Launch at login")
-                    }
-                    
-                    if(!Helper.instance.appleSilicon!){
-                        Toggle(isOn: Binding(
-                            get: { oldKey },
-
-                            set: { newValue in
-                                oldKey = newValue
-                                PersistanceManager.instance.oldKey = oldKey
-                                PersistanceManager.instance.save()
-                                Helper.instance.setStatusString()
-                                if(newValue){
-                                    Helper.instance.enableCharging()
-                                    Helper.instance.enableSleep()
-                                    //presenter.writeValue()
-                                }
-                                else{
-                                    presenter.setValue(value: 100)
-                                }
-                            }
-                        )) {
-                            Text("Use Classic SMC Key (Intel)")
-                        }
-                    }
-                }.padding()
-
-                Spacer()
-
-                Button(action: {
-                    Helper.instance.installHelper()
-                }) {
-                    Text("Reinstall Helper")
-                        .frame(maxWidth: 120, maxHeight: 30)
-                }.buttonStyle(BlueButtonStyle())
-            }
-
-            HStack {
-                Spacer().frame(width: 15)
-                VStack(alignment: .leading) {
-                    let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-                    Text("Voltly \(version ?? "") 🍝").font(.headline)
-
-                    let address = "github.com/davidwernhart/AlDente"
-                    Button(action: {
-                        openURL("https://" + address)
-                    }) {
-                        Text(address).foregroundColor(Color(.linkColor))
-                    }.buttonStyle(PlainButtonStyle())
-
-                    Text("Cooked up in 2021 by AppHouseKitchen")
-//                    Text("Voltly 🍝").font(.title)
-//                    Text("Keep your battery just right").font(.subheadline)
-                }
-
-                Spacer()
-
-                Button(action: {
-                    openURL("https://apphousekitchen.com/aldente/")
-                }) {
-                    Text("Get Pro 🍜")
-                        .frame(maxWidth: 100, maxHeight: 50)
-                }
-                .buttonStyle(BlueButtonStyle())
-            }
-        }
-        .background(Color(.unemphasizedSelectedContentBackgroundColor))
-        .cornerRadius(5)
-    }
-
-    private func openURL(_ string: String) {
-        let url = URL(string: string)!
-        if NSWorkspace.shared.open(url) {
-            print("default browser was successfully opened")
-        }
-    }
-}
-
 struct ContentView: View {
-    @State private var adaptableHeight = CGFloat(100)
-    @State private var showSettings = false
+    @ObservedObject private var controller = Controller.shared
+    @State private var draftLimit = 80.0
 
-    @ObservedObject private var presenter = SMCPresenter.shared
+    @AppStorage(Key.limit) private var limit = 80
+    @AppStorage(Key.showStatus) private var showStatus = true
+    @AppStorage(Key.showActions) private var showActions = true
+    @AppStorage(Key.showToggles) private var showToggles = true
+    @AppStorage(Key.sailing) private var sailing = false
+    @AppStorage(Key.heatProtection) private var heatProtection = false
+    @AppStorage(Key.autoDischarge) private var autoDischarge = false
 
-    init() {
-        Helper.instance.delegate = presenter
+    private var calibrating: Bool {
+        if case .calibration = controller.state.mode { return true }
+        return false
+    }
+
+    private func mode(_ mode: Mode, active: Bool) -> Binding<Bool> {
+        Binding(get: { active }, set: { controller.setMode($0 ? mode : .normal) })
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Voltly").font(.headline)
+                Spacer()
+                Text("\(controller.percent)%").font(.headline).monospacedDigit()
+            }
+            if showStatus {
+                Text(controller.status).font(.caption).foregroundColor(.secondary)
+            }
 
             HStack {
-                Text("Max. Battery Charge:").padding(.leading)
-                TextField("Number", value: Binding(
-                    get: {
-                        Float(presenter.value)
-                    },
-                    set: { newValue in
-                        if newValue >= 20 && newValue <= 100 {
-                            presenter.setValue(value: newValue)
-                        }
-                    }
-                ), formatter: NumberFormatter())
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 50)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-
-                Spacer()
-
-                Button(action: {
-                    showSettings.toggle()
-                    adaptableHeight = showSettings ? 275 : 100
-                }) {
-                    Text("Settings")
-                        .frame(maxWidth: 70, maxHeight: 30)
-                }.buttonStyle(BlueButtonStyle()).padding(.leading, -30)
-
-                Button(action: {
-                    NSApplication.shared.terminate(self)
-                }) {
-                    Text("Quit")
-                        .frame(maxWidth: 50, maxHeight: 30)
-                }.buttonStyle(RedButtonStyle()).padding(.leading, -30)
-            }
-
-            Slider(value: Binding(
-                get: {
-                     Float(presenter.value)
-                },
-                set: { newValue in
-                    if newValue >= 20 && newValue <= 100 {
-                        presenter.setValue(value: newValue)
-                    }
+                Slider(value: $draftLimit, in: 20...100, step: 1) { editing in
+                    if !editing { controller.setLimit(Int(draftLimit)) }
                 }
-            ), in: 20...100).padding(.horizontal).padding(.top, -20)
-
-            Spacer()
-
-            if showSettings {
-                Settings()
+                .accessibilityLabel("Charge limit")
+                Text("\(Int(draftLimit))%").monospacedDigit().frame(width: 44, alignment: .trailing)
             }
 
-        }.frame(width: 400, height: adaptableHeight)
+            if showActions {
+                HStack {
+                    Toggle("Top Up", isOn: mode(.topUp, active: controller.state.mode == .topUp))
+                    Toggle("Discharge", isOn: mode(.discharge, active: controller.state.mode == .discharge))
+                    Toggle("Calibrate", isOn: mode(.calibration(0), active: calibrating))
+                }
+                .toggleStyle(.button)
+            }
 
+            if showToggles {
+                Toggle("Sailing Mode", isOn: $sailing)
+                Toggle("Heat Protection", isOn: $heatProtection)
+                Toggle("Automatic Discharge", isOn: $autoDischarge)
+            }
+
+            Divider()
+            HStack {
+                Button("Settings…") { (NSApp.delegate as? AppDelegate)?.openSettings() }
+                Spacer()
+                Button("Quit") { NSApp.terminate(nil) }
+            }
+        }
+        .padding()
+        .frame(width: 320)
+        .onAppear { draftLimit = Double(limit) }
+        .onChange(of: limit) { draftLimit = Double($0) }
     }
 }
 
-public final class SMCPresenter: ObservableObject, HelperDelegate {
+struct SettingsView: View {
+    @AppStorage(Key.sailing) private var sailing = false
+    @AppStorage(Key.sailRange) private var sailRange = 5
+    @AppStorage(Key.heatProtection) private var heatProtection = false
+    @AppStorage(Key.maxTemperature) private var maxTemperature = 35
+    @AppStorage(Key.stopChargingOnSleep) private var stopChargingOnSleep = false
+    @AppStorage(Key.preventSleep) private var preventSleep = true
+    @AppStorage(Key.autoDischarge) private var autoDischarge = false
+    @AppStorage(Key.clamshellDischarge) private var clamshellDischarge = false
+    @AppStorage(Key.ledMode) private var ledMode = 0
+    @AppStorage(Key.lowPowerMode) private var lowPowerMode = 0
+    @AppStorage(Key.schedule) private var schedule = Data()
+    @AppStorage(Key.menuIcon) private var menuIcon = "voltly"
+    @AppStorage(Key.menuPercent) private var menuPercent = false
+    @AppStorage(Key.showStatus) private var showStatus = true
+    @AppStorage(Key.showActions) private var showActions = true
+    @AppStorage(Key.showToggles) private var showToggles = true
+    @AppStorage(Key.classicKey) private var classicKey = false
+    @AppStorage(Key.limit) private var limit = 80
+    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
-    static let shared = SMCPresenter()
+    private let capabilities = Helper.instance.capabilities
 
-    @Published var value: UInt8 = 0
-    @Published var status: String = ""
-    private var timer: Timer?
-    private var accuracyTimer: Timer?
+    private var tasks: Binding<[ScheduledTask]> {
+        Binding(
+            get: { (try? JSONDecoder().decode([ScheduledTask].self, from: schedule)) ?? [] },
+            set: { schedule = (try? JSONEncoder().encode($0)) ?? Data() }
+        )
+    }
 
-    func OnMaxBatRead(value: UInt8) {
-        if(PersistanceManager.instance.oldKey){
-            DispatchQueue.main.async {
-                self.value = value
+    var body: some View {
+        Form {
+            Section("Charging") {
+                Toggle("Sailing Mode", isOn: $sailing)
+                Stepper("Resume charging \(sailRange)% below the limit", value: $sailRange, in: 2...20)
+                Toggle("Heat Protection", isOn: $heatProtection)
+                Stepper("Pause charging at \(maxTemperature)°C", value: $maxTemperature, in: 30...45)
+                Toggle("Stop Charging when Sleeping", isOn: $stopChargingOnSleep)
+                Toggle("Sleep Control: stay awake until the limit is reached", isOn: $preventSleep)
+                    .disabled(capabilities["charging"] != true)
+            }
+
+            Section("Discharge") {
+                Toggle("Automatic Discharge", isOn: $autoDischarge)
+                Toggle("Discharge in Clamshell Mode", isOn: $clamshellDischarge)
+            }
+
+            Section("Hardware") {
+                Picker("MagSafe LED", selection: $ledMode) {
+                    Text("System").tag(0)
+                    Text("Show charge status").tag(1)
+                    Text("Off").tag(2)
+                }
+                .disabled(capabilities["led"] != true)
+                Picker("Low Power Mode", selection: $lowPowerMode) {
+                    Text("Do not change").tag(0)
+                    Text("Always on").tag(1)
+                    Text("On battery only").tag(2)
+                    Text("Always off").tag(3)
+                }
+            }
+
+            Section("Schedule") {
+                ForEach(tasks) { $task in
+                    HStack {
+                        Toggle("Enabled", isOn: $task.enabled).labelsHidden()
+                        Picker("Day", selection: $task.weekday) {
+                            Text("Every day").tag(0)
+                            ForEach(1...7, id: \.self) { Text(Calendar.current.weekdaySymbols[$0 - 1]).tag($0) }
+                        }
+                        DatePicker("Time", selection: Binding(
+                            get: { Calendar.current.startOfDay(for: Date()).addingTimeInterval(Double(task.minutes) * 60) },
+                            set: {
+                                let parts = Calendar.current.dateComponents([.hour, .minute], from: $0)
+                                task.minutes = (parts.hour ?? 0) * 60 + (parts.minute ?? 0)
+                            }
+                        ), displayedComponents: .hourAndMinute)
+                        Picker("Action", selection: $task.action) {
+                            Text("Top Up").tag("topUp")
+                            Text("Discharge").tag("discharge")
+                            Text("Calibrate").tag("calibrate")
+                            Text("Set limit").tag("limit")
+                        }
+                        if task.action == "limit" {
+                            Stepper("\(task.value)%", value: $task.value, in: 20...100, step: 5)
+                        }
+                        Button(role: .destructive) {
+                            tasks.wrappedValue.removeAll { $0.id == task.id }
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .accessibilityLabel("Delete task")
+                    }
+                    .labelsHidden()
+                }
+                Button("Add Task") { tasks.wrappedValue.append(ScheduledTask()) }
+            }
+
+            Section("Menu Bar Icon") {
+                Picker("Icon", selection: $menuIcon) {
+                    Text("Voltly").tag("voltly")
+                    Label("Bolt", systemImage: "bolt.fill").tag("bolt.fill")
+                    Label("Battery", systemImage: "battery.75percent").tag("battery.75percent")
+                    Label("Leaf", systemImage: "leaf.fill").tag("leaf.fill")
+                }
+                Toggle("Show battery percentage", isOn: $menuPercent)
+            }
+
+            Section("Popover") {
+                Toggle("Show status", isOn: $showStatus)
+                Toggle("Show Top Up, Discharge and Calibrate", isOn: $showActions)
+                Toggle("Show quick toggles", isOn: $showToggles)
+            }
+
+            Section("General") {
+                Toggle("Launch at login", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { enabled in
+                        if enabled { try? SMAppService.mainApp.register() } else { try? SMAppService.mainApp.unregister() }
+                        launchAtLogin = SMAppService.mainApp.status == .enabled
+                    }
+                #if arch(x86_64)
+                Toggle("Use Classic SMC Key (Intel)", isOn: $classicKey)
+                    .onChange(of: classicKey) { enabled in
+                        Helper.instance.proxy?.setBCLM(UInt8(enabled ? limit : 100))
+                    }
+                #endif
+                Button("Reinstall Helper") { Helper.instance.installHelper() }
+                let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+                Text("Voltly \(version ?? ""). Based on AlDente by AppHouseKitchen.")
+                    .font(.caption).foregroundColor(.secondary)
             }
         }
+        .formStyle(.grouped)
+        .frame(width: 560, height: 640)
     }
-    
-    func updateStatus(status:String){
-        DispatchQueue.main.async {
-            self.status = status
-        }
-    }
-    
-    public func loadValue(){
-        PersistanceManager.instance.load()
-        self.value = UInt8(PersistanceManager.instance.chargeVal!)
-        if(self.value == 0){
-            self.value = 50
-        }
-        print("loaded max charge val: ",self.value," old key:",PersistanceManager.instance.oldKey)
-//        if(!Helper.instance.appleSilicon!){
-//            Helper.instance.getSMCCharge(withReply: { (smcval) in
-//                self.value = UInt8(smcval)
-//            })
-//        }
-        if(PersistanceManager.instance.oldKey){
-            writeValue()
-        }
-    }
-
-    func setValue(value: Float) {
-        DispatchQueue.main.async {
-            self.value = UInt8(value)
-            PersistanceManager.instance.chargeVal = Int(value)
-            PersistanceManager.instance.save()
-            self.writeValue()
-        }
-        timer?.invalidate()
-        accuracyTimer?.invalidate()        
-    }
-    
-    func writeValue(){
-        if(PersistanceManager.instance.oldKey){
-            print("should write bclm value: ", self.value)
-            Helper.instance.writeMaxBatteryCharge(setVal: self.value)
-        }
-    }
-
 }

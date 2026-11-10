@@ -7,21 +7,21 @@
 //
 
 import Foundation
-import IOKit.pwr_mgt
 
-let helperVersion: String = "10" //for some reason the integrated version check does not work, so I use this one
+let helperVersion: String = "11" //for some reason the integrated version check does not work, so I use this one
 
 @objc(HelperToolProtocol) protocol HelperToolProtocol {
 //protocol HelperToolProtocol {
     func getVersion(withReply reply: @escaping (String) -> Void)
+    func capabilities(withReply reply: @escaping ([String: Bool]) -> Void)
 
-    //TODO: more functions for other data types, altough this is sufficient for battery max charge level
-    func setSMCByte(key: String, value: UInt8)
-    func readSMCByte(key: String, withReply reply: @escaping (UInt8) -> Void)
-    func readSMCUInt32(key: String, withReply reply: @escaping (UInt32) -> Void)
-    
-    func createAssertion(assertion:String, withReply reply: @escaping (IOPMAssertionID) -> Void)
-    func releaseAssertion(assertionID:IOPMAssertionID)
-    func setResetVal(key:String, value: UInt8)
+    func setCharging(_ enabled: Bool)
+    func setNativeLimit(_ limit: Int)
+    func setAdapter(_ enabled: Bool)
+    func setLED(_ value: UInt8)
+    func setLowPowerMode(_ enabled: Bool)
+    func batteryTemperature(withReply reply: @escaping (Double) -> Void)
 
+    func setBCLM(_ value: UInt8)
+    func readBCLM(withReply reply: @escaping (UInt8) -> Void)
 }

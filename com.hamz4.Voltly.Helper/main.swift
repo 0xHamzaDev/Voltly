@@ -21,6 +21,7 @@ final class HelperDelegate: NSObject, NSXPCListenerDelegate {
 let delegate = HelperDelegate()
 let listener = NSXPCListener(machServiceName: "com.hamz4.Voltly.Helper.mach")
 listener.delegate = delegate
+listener.setConnectionCodeSigningRequirement("identifier \"com.hamz4.Voltly\" and anchor apple generic and certificate leaf[subject.OU] = \"XSP5VLG46P\"")
 listener.resume()
 var hasChecked = false
 Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { timer in
