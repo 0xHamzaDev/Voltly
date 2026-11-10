@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Voltly is a macOS menu bar app that protects your MacBook battery by limiting how far it charges.">
+<title data-i18n="title">Voltly: a battery limiter for your MacBook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --base: #0A0B0D;
+  --surface: #131418;
+  --surface-2: #24262B;
+  --ink: #F6F5F1;
+  --ink-2: rgba(246, 245, 241, 0.66);
+  --ink-3: rgba(246, 245, 241, 0.55);
+  --line: rgba(246, 245, 241, 0.09);
+  --accent: #34D36B;
+  --warm: #F4BC1F;
+  --scrim: rgba(0, 0, 0, 0.72);
+  --font: system-ui, -apple-system, "SF Pro Display", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --round: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --d: 1;
+  --end: right;
+  --sec: 96px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+:root:lang(ar) { --font: "IBM Plex Sans Arabic", system-ui, sans-serif; --round: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+:root[dir="rtl"] { --d: -1; --end: left; }
+:root[dir="rtl"] * { letter-spacing: normal !important; }
+@media (min-width: 900px) { :root { --sec: 128px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-block-start: 96px; }
+body {
+  margin: 0;
+  background: var(--base);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+:root[dir="rtl"] body { line-height: 1.75; }
+h1, h2, h3, h4, p, ul, ol, dl, dd { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+a { color: inherit; }
+svg { display: block; flex: none; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--warm); outline-offset: 3px; }
+.wrap { inline-size: 100%; max-inline-size: 1180px; margin-inline: auto; padding-inline: 24px; }
+@media (max-width: 479px) { .wrap { padding-inline: 16px; } }
+.num { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+.sr { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.grain { position: fixed; inset: 0; inline-size: 100%; block-size: 100%; opacity: 0.22; mix-blend-mode: overlay; pointer-events: none; z-index: 50; }
+
+.top {
+  position: sticky; inset-block-start: 12px; z-index: 20;
+  inline-size: calc(100% - 24px); max-inline-size: 1040px; block-size: 60px;
+  margin-inline: auto; margin-block-start: 12px;
+  display: flex; align-items: center; gap: 16px; padding-inline: 12px 8px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(246, 245, 241, 0.08), 0 20px 40px -20px var(--scrim);
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; font-size: 18px; letter-spacing: -0.03em; }
+.mark { inline-size: 32px; block-size: 32px; border-radius: 50%; background: var(--accent); color: var(--base); display: grid; place-items: center; }
+.ver { font-size: 12px; font-weight: 600; color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; direction: ltr; }
+.nav { display: flex; gap: 6px; margin-inline-start: auto; }
+.nav a { text-decoration: none; color: var(--ink-2); font-size: 15px; padding: 10px 14px; border-radius: 999px; transition: color 0.2s, background 0.2s; }
+.nav a:hover { color: var(--ink); background: var(--line); }
+.top-end { margin-inline-start: auto; display: flex; align-items: center; gap: 8px; }
+.nav + .top-end { margin-inline-start: 0; }
+.lang { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 10px 18px; font-size: 14px; cursor: pointer; color: var(--ink-2); transition: color 0.2s, background 0.2s; }
+.lang:hover { color: var(--ink); background: var(--line); }
+@media (max-width: 759px) { .nav { display: none; } .top-end { margin-inline-start: auto; } }
+@media (max-width: 479px) {
+  .ver { display: none; }
+  .top { gap: 8px; }
+  .top .dl-t { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
+  .top .btn { padding-inline: 14px; }
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--ink); color: var(--base);
+  font-weight: 600; text-decoration: none; border: 0; cursor: pointer;
+  padding: 10px 18px; border-radius: 999px; font-size: 15px;
+}
+.btn.lg { padding: 16px 28px; font-size: 17px; box-shadow: 0 18px 40px -16px rgba(246, 245, 241, 0.35); }
+.ico { position: relative; inline-size: 18px; block-size: 18px; display: block; }
+.ico svg { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; transition: transform 0.3s var(--ease), opacity 0.3s var(--ease), filter 0.3s var(--ease); }
+.ico .i2 { opacity: 0; filter: blur(4px); transform: translateX(calc(var(--d) * 14px)); }
+.btn:hover .i1, .btn:focus-visible .i1 { opacity: 0; filter: blur(4px); transform: translateX(calc(var(--d) * -14px)); }
+.btn:hover .i2, .btn:focus-visible .i2 { opacity: 1; filter: none; transform: none; }
+
+.hero { position: relative; padding-block: 72px 0; text-align: center; }
+.hero::before {
+  content: ""; position: absolute; inset-block-start: -80px; inset-inline: 0; block-size: 900px; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(52, 211, 107, 0.22), transparent 70%);
+}
+h1 { font-size: clamp(40px, 6.4vw, 88px); font-weight: 700; line-height: 1; letter-spacing: -0.045em; max-inline-size: 15ch; margin-inline: auto; }
+:root[dir="rtl"] h1 { line-height: 1.25; }
+h1 .l1 { display: block; }
+.hl { display: inline-block; background: rgba(52, 211, 107, 0.9); color: var(--base); padding-inline: 0.16em; margin-inline: 0.04em; border-radius: 0.1em; transform: rotate(-1.5deg) skewX(-5deg); }
+:root[dir="rtl"] .hl { transform: rotate(1.5deg) skewX(5deg); }
+.lead { font-size: clamp(18px, 1.7vw, 21px); line-height: 1.5; color: var(--ink-2); max-inline-size: 36em; margin: 28px auto 36px; }
+:root[dir="rtl"] .lead { line-height: 1.75; }
+.req { margin-block-start: 16px; font-size: 14px; color: var(--ink-3); display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 16px; }
+.req li + li { padding-inline-start: 16px; border-inline-start: 1px solid var(--line); }
+
+.demo { margin-block-start: 72px; }
+.stage {
+  position: relative; max-inline-size: 1088px; margin-inline: auto; min-block-size: 580px; overflow: hidden;
+  border-radius: 40px; border: 1px solid var(--line);
+  background:
+    radial-gradient(60% 80% at 20% 10%, rgba(52, 211, 107, 0.26), transparent 60%),
+    radial-gradient(50% 60% at 85% 20%, rgba(244, 188, 31, 0.14), transparent 60%),
+    radial-gradient(80% 70% at 50% 115%, rgba(52, 211, 107, 0.16), transparent 60%),
+    linear-gradient(160deg, #14161a, #07080a);
+  box-shadow: 0 60px 120px -40px var(--scrim);
+  text-align: start;
+}
+.menubar {
+  display: flex; align-items: center; gap: 18px; block-size: 36px; padding-inline: 20px;
+  background: rgba(10, 11, 13, 0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  font-size: 13px; color: var(--ink-2); border-block-end: 1px solid var(--line);
+}
+.menubar .sp { flex: 1; }
+.menubar .mb-strong { color: var(--ink); font-weight: 700; }
+.menubar .item { display: flex; align-items: center; gap: 6px; }
+.menubar .volt { background: rgba(246, 245, 241, 0.16); color: var(--ink); padding: 3px 8px; border-radius: 6px; }
+@media (max-width: 640px) { .menubar .opt { display: none; } }
+
+.pop {
+  position: absolute; inset-block-start: 46px; inset-inline-end: 96px; inline-size: 300px;
+  padding: 20px; border-radius: 16px; border: 1px solid var(--line);
+  background: rgba(30, 31, 35, 0.86); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: 0 40px 80px -24px var(--scrim), inset 0 1px 0 rgba(246, 245, 241, 0.06);
+  font-size: 14px; line-height: 1.4;
+}
+@media (max-width: 760px) { .pop { inset-inline: 0; margin-inline: auto; } .stage { min-block-size: 560px; } }
+.pop-pct { font-family: var(--round); font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -0.04em; direction: ltr; text-align: start; }
+.bat { position: relative; block-size: 14px; border-radius: 7px; background: var(--surface-2); margin-block: 14px 12px; }
+.bat i { position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: 72%; border-radius: 7px; background: var(--accent); transition: inline-size 0.5s linear; }
+.bat b { position: absolute; inset-block: -5px; inline-size: 2px; inset-inline-start: 80%; background: var(--ink); border-radius: 1px; transition: inset-inline-start 0.2s; }
+.status { color: var(--accent); font-weight: 600; min-block-size: 20px; }
+.lim { display: flex; justify-content: space-between; align-items: baseline; margin-block: 18px 6px; color: var(--ink-2); font-size: 13px; }
+.lim output { color: var(--ink); font-weight: 600; }
+input[type="range"] { -webkit-appearance: none; appearance: none; inline-size: 100%; block-size: 24px; margin: 0; background: transparent; cursor: pointer; --p: 75%; }
+input[type="range"]::-webkit-slider-runnable-track { block-size: 6px; border-radius: 3px; background: linear-gradient(to var(--end), var(--accent) var(--p), var(--surface-2) var(--p)); }
+input[type="range"]::-moz-range-track { block-size: 6px; border-radius: 3px; background: linear-gradient(to var(--end), var(--accent) var(--p), var(--surface-2) var(--p)); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; inline-size: 22px; block-size: 22px; margin-block-start: -8px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); }
+input[type="range"]::-moz-range-thumb { inline-size: 22px; block-size: 22px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); }
+.acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-block: 14px 8px; }
+.act { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 12px; border: 1px solid var(--line); background: rgba(246, 245, 241, 0.04); cursor: pointer; font-size: 12px; font-weight: 600; transition: background 0.2s, border-color 0.2s; }
+.act:hover { background: rgba(246, 245, 241, 0.09); }
+.act[aria-pressed="true"] { background: var(--accent); color: var(--base); border-color: var(--accent); }
+.rows button { display: flex; justify-content: space-between; align-items: center; inline-size: 100%; padding: 10px 0; background: none; border: 0; border-block-start: 1px solid var(--line); cursor: pointer; text-align: start; font-size: 14px; }
+.sw { inline-size: 40px; block-size: 24px; border-radius: 12px; background: var(--surface-2); position: relative; flex: none; transition: background 0.2s; }
+.sw::after { content: ""; position: absolute; inset-block-start: 2px; inset-inline-start: 2px; inline-size: 20px; block-size: 20px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+button[aria-checked="true"] .sw { background: var(--accent); }
+button[aria-checked="true"] .sw::after { transform: translateX(calc(var(--d) * 16px)); }
+.hint { text-align: center; color: var(--ink-3); font-size: 14px; margin-block-start: 20px; }
+
+.ticker { margin-block-start: var(--sec); border-block: 1px solid var(--line); overflow: hidden; padding-block: 20px; }
+.track { display: flex; inline-size: max-content; direction: ltr; animation: marquee 40s linear infinite; }
+:root[dir="rtl"] .track { animation-direction: reverse; }
+.track ul { display: flex; gap: 40px; padding-inline-end: 40px; }
+.track li { display: flex; align-items: center; gap: 14px; white-space: nowrap; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink-2); }
+.track li::before { content: ""; inline-size: 8px; block-size: 8px; border-radius: 2px; background: var(--accent); }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+section { padding-block-start: var(--sec); }
+.why p { font-size: clamp(22px, 3vw, 30px); line-height: 1.4; letter-spacing: -0.02em; font-weight: 600; color: var(--ink-2); max-inline-size: 26em; }
+:root[dir="rtl"] .why p { line-height: 1.75; }
+.why em { font-style: normal; color: var(--ink); }
+h2 { font-size: clamp(32px, 4.6vw, 56px); line-height: 1.08; letter-spacing: -0.035em; font-weight: 700; max-inline-size: 16ch; }
+:root[dir="rtl"] h2 { line-height: 1.3; }
+.sec-lead { font-size: clamp(18px, 1.7vw, 21px); line-height: 1.5; color: var(--ink-2); max-inline-size: 34em; margin-block-start: 18px; }
+:root[dir="rtl"] .sec-lead { line-height: 1.75; }
+h3 { font-size: clamp(22px, 2.3vw, 30px); line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; }
+:root[dir="rtl"] h3 { line-height: 1.4; }
+.card p, .small p { color: var(--ink-2); margin-block-start: 10px; }
+
+.bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-block-start: 56px; --gx: 100%; }
+:root[dir="rtl"] .bento { --gx: 0%; }
+.card {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 32px; padding: 32px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 32px;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.card::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(circle at var(--gx) 0%, rgba(52, 211, 107, 0.18), transparent 55%); }
+.card.warm::before { background: radial-gradient(circle at var(--gx) 0%, rgba(244, 188, 31, 0.2), transparent 55%); }
+.card:hover { transform: translateY(-6px); }
+.s7 { grid-column: span 7; } .s5 { grid-column: span 5; } .s4 { grid-column: span 4; } .s8 { grid-column: span 8; } .s12 { grid-column: span 12; }
+@media (max-width: 899px) { .bento > * { grid-column: 1 / -1; } .card { padding: 28px; } }
+.ill { position: relative; }
+.big { font-size: clamp(64px, 9vw, 120px); font-weight: 800; letter-spacing: -0.06em; line-height: 0.9; color: var(--accent); direction: ltr; }
+.track-bar { position: relative; block-size: 18px; border-radius: 9px; background: var(--surface-2); }
+.track-bar i { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: 9px; background: var(--accent); inline-size: var(--v, 80%); }
+.track-bar b { position: absolute; inset-block: -7px; inline-size: 3px; border-radius: 2px; background: var(--ink); inset-inline-start: var(--m, 80%); }
+.track-bar .ext { inset-inline-start: 80%; inline-size: 20%; border-radius: 0 9px 9px 0; background: repeating-linear-gradient(135deg, rgba(52, 211, 107, 0.5) 0 6px, transparent 6px 12px); }
+:root[dir="rtl"] .track-bar .ext { border-radius: 9px 0 0 9px; }
+.track-bar .band { inset-inline-start: 75%; inline-size: 5%; border-radius: 3px; background: rgba(52, 211, 107, 0.55); outline: 2px solid var(--accent); }
+.scale { display: flex; justify-content: space-between; margin-block-start: 14px; font-size: 13px; color: var(--ink-3); font-family: var(--mono); }
+.heat-bar i { background: var(--warm); inline-size: 70%; }
+.heat-bar b { background: var(--warm); inset-inline-start: 70%; inline-size: 3px; }
+.drain i { background: var(--surface-2); inline-size: 100%; outline: 1px solid var(--line); }
+.drain u { position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: 80%; border-radius: 9px; background: var(--accent); text-decoration: none; }
+.cal svg { inline-size: 100%; block-size: auto; max-block-size: 90px; }
+.week { display: flex; gap: 8px; }
+.week i { flex: 1; block-size: 36px; border-radius: 10px; background: var(--surface-2); }
+.week i.on { background: var(--accent); }
+.auto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+@media (max-width: 699px) { .auto-grid { grid-template-columns: 1fr; } }
+.small h4 { font-size: 20px; letter-spacing: -0.02em; line-height: 1.3; margin-block-end: 14px; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-block-start: 16px; }
+.pills li { direction: ltr; font-family: var(--mono); font-size: 13px; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); }
+.dl-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; margin-block-start: 8px; }
+@media (max-width: 699px) { .dl-list { grid-template-columns: 1fr; } }
+.dl-list div { padding-block: 18px; border-block-start: 1px solid var(--line); }
+.dl-list dt { font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+.dl-list dd { color: var(--ink-2); margin-block-start: 4px; }
+.dots { display: inline-flex; gap: 6px; }
+.dots i { inline-size: 10px; block-size: 10px; border-radius: 50%; display: block; }
+.dots .g { background: var(--accent); }
+.dots .o { background: #f08a1c; }
+.dots .x { border: 2px solid var(--ink-3); }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-block-start: 56px; counter-reset: s; }
+@media (max-width: 899px) { .steps { grid-template-columns: 1fr; } }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 28px; counter-increment: s; }
+.step::before { content: counter(s); display: grid; place-items: center; inline-size: 44px; block-size: 44px; border-radius: 50%; border: 2px solid var(--accent); color: var(--accent); font-weight: 700; font-family: var(--mono); margin-block-end: 28px; direction: ltr; }
+.step p { color: var(--ink-2); margin-block-start: 10px; }
+
+.setup .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+@media (max-width: 899px) { .setup .wrap { grid-template-columns: 1fr; gap: 40px; } }
+.recipe { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 8px 24px; }
+.recipe li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 18px; border-block-end: 1px solid var(--line); font-weight: 600; }
+.pillv { font-family: var(--mono); font-size: 13px; padding: 6px 14px; border-radius: 999px; background: rgba(52, 211, 107, 0.14); color: var(--accent); direction: ltr; }
+.tip { grid-column: 1 / -1; padding: 20px 24px; border: 1px solid var(--line); border-radius: 28px; background: var(--surface); color: var(--ink-2); }
+.tip strong { color: var(--ink); }
+
+.faq .wrap { max-inline-size: 860px; }
+.faq-list { margin-block-start: 48px; }
+details { border-block-end: 1px solid var(--line); }
+details:first-child { border-block-start: 1px solid var(--line); }
+summary { list-style: none; cursor: pointer; padding-block: 24px; display: flex; justify-content: space-between; align-items: center; gap: 24px; font-size: clamp(18px, 1.8vw, 21px); font-weight: 600; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font-size: 28px; line-height: 1; color: var(--accent); transition: transform 0.3s var(--ease); flex: none; }
+details[open] summary::after { transform: rotate(45deg); }
+details p { color: var(--ink-2); padding-block-end: 24px; max-inline-size: 38em; }
+
+.cta { text-align: center; }
+.cta h2 { margin-inline: auto; max-inline-size: 14ch; margin-block-end: 36px; }
+.word { margin-block-start: 64px; overflow: hidden; block-size: 15vw; text-align: center; font-size: 22vw; font-weight: 800; line-height: 0.85; letter-spacing: -0.06em; color: rgba(246, 245, 241, 0.05); user-select: none; direction: ltr; }
+footer { border-block-start: 1px solid var(--line); padding-block: 24px; font-size: 14px; color: var(--ink-3); }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+footer a { color: var(--ink-2); }
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  .top { animation: rise 0.8s var(--ease) 50ms both; }
+  h1 { animation: rise 0.8s var(--ease) 150ms both; }
+  .lead { animation: rise 0.8s var(--ease) 300ms both; }
+  .cta-row { animation: rise 0.8s var(--ease) 500ms both; }
+  .demo { animation: rise 0.9s var(--ease) 900ms both; }
+  @supports (animation-timeline: view()) {
+    @keyframes reveal { from { opacity: 0; transform: translateY(48px) scale(0.98); } to { opacity: 1; transform: none; } }
+    .rv { animation: reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .track { animation-play-state: paused; }
+  .bat i, .bat b, .card, .ico svg, .sw::after, summary::after { transition: none; }
+}
+</style>
+</head>
+<body>
+<svg class="grain" aria-hidden="true" focusable="false"><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#grain)"/></svg>
+
+<header class="top">
+  <a class="brand" href="#top" aria-label="Voltly">
+    <span class="mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+    Voltly
+  </a>
+  <span class="ver" data-i18n="ver">2.0 Alpha</span>
+  <nav class="nav" aria-label="Main">
+    <a href="#features" data-i18n="nav_features">Features</a>
+    <a href="#how" data-i18n="nav_how">How it works</a>
+    <a href="#faq" data-i18n="nav_faq">FAQ</a>
+  </nav>
+  <div class="top-end">
+    <button type="button" class="lang" id="lang" aria-pressed="false" data-i18n="lang_btn" lang="ar">العربية</button>
+    <a class="btn dl" href="https://github.com/0xHamzaDev/Voltly/releases/latest">
+      <span class="ico" aria-hidden="true">
+        <svg class="i1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
+        <svg class="i2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-5-5m5 5 5-5M4 21h16"/></svg>
+      </span>
+      <span class="dl-t" data-i18n="dl">Download</span>
+    </a>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <h1 id="h1"><span class="l1" data-i18n="h1a">A plugged-in MacBook</span><span data-i18n="h1b">needs a </span><span class="hl" data-i18n="h1m">healthy</span><span data-i18n="h1c"> battery.</span></h1>
+      <p class="lead" data-i18n="hero_p">Voltly sits in your menu bar and stops charging at the level you choose, so the battery is not held at 100% all day.</p>
+      <div class="cta-row">
+        <a class="btn lg dl" href="https://github.com/0xHamzaDev/Voltly/releases/latest">
+          <span class="ico" aria-hidden="true">
+            <svg class="i1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
+            <svg class="i2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-5-5m5 5 5-5M4 21h16"/></svg>
+          </span>
+          <span data-i18n="dl">Download</span>
+        </a>
+        <ul class="req">
+          <li data-i18n="req1">macOS 13 or later</li>
+          <li data-i18n="req2">Apple Silicon</li>
+          <li data-i18n="req3">Version 2.0 Alpha</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo wrap">
+    <div class="stage">
+      <div class="menubar" aria-hidden="true">
+        <span class="mb-strong">Voltly</span>
+        <span class="opt" data-i18n="mb1">File</span>
+        <span class="opt" data-i18n="mb2">Edit</span>
+        <span class="opt" data-i18n="mb3">View</span>
+        <span class="sp"></span>
+        <span class="item volt"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+        <span class="item">
+          <svg width="22" height="12" viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="17" height="10" rx="3"/><path d="M20.5 4.5v3" stroke-linecap="round"/></svg>
+          <span class="num" id="mbPct">72%</span>
+        </span>
+        <span class="item num">9:41</span>
+      </div>
+      <div class="pop">
+        <div class="pop-pct"><span id="pct">72</span>%</div>
+        <div class="bat"><i id="fill"></i><b id="mark"></b></div>
+        <p class="status" id="status" aria-live="polite"></p>
+        <div class="lim"><label for="limit" data-i18n="pop_limit">Charge limit</label><output for="limit" class="num" id="limitVal">80%</output></div>
+        <input type="range" id="limit" min="20" max="100" step="1" value="80">
+        <div class="acts">
+          <button type="button" class="act" id="bTop" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span data-i18n="pop_topup">Top Up</span></button>
+          <button type="button" class="act" id="bDis" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg><span data-i18n="pop_discharge">Discharge</span></button>
+          <button type="button" class="act" id="bCal" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg><span data-i18n="pop_calibrate">Calibrate</span></button>
+        </div>
+        <div class="rows">
+          <button type="button" role="switch" aria-checked="true" id="swSail"><span data-i18n="pop_sailing">Sailing Mode</span><span class="sw"></span></button>
+          <button type="button" role="switch" aria-checked="true" id="swHeat"><span data-i18n="pop_heat">Heat Protection</span><span class="sw"></span></button>
+          <button type="button" role="switch" aria-checked="false" id="swAuto"><span data-i18n="pop_auto">Automatic Discharge</span><span class="sw"></span></button>
+        </div>
+      </div>
+    </div>
+    <p class="hint" data-i18n="demo_hint">It's interactive. Drag the slider.</p>
+  </div>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="track">
+      <ul>
+        <li data-i18n="f_limit_h">Charge Limiter</li><li data-i18n="pop_sailing">Sailing Mode</li><li data-i18n="pop_heat">Heat Protection</li><li data-i18n="pop_topup">Top Up</li><li data-i18n="pop_discharge">Discharge</li><li data-i18n="f_cal_h">Calibration Mode</li><li data-i18n="f_sch_h">Schedule</li><li data-i18n="f_sc_h">Apple Shortcuts Support</li><li data-i18n="r_ctrl_h">Sleep Control</li><li data-i18n="f_led_h">Control MagSafe LED</li><li data-i18n="f_lpm_h">Low Power Mode Control</li>
+      </ul>
+      <ul>
+        <li data-i18n="f_limit_h">Charge Limiter</li><li data-i18n="pop_sailing">Sailing Mode</li><li data-i18n="pop_heat">Heat Protection</li><li data-i18n="pop_topup">Top Up</li><li data-i18n="pop_discharge">Discharge</li><li data-i18n="f_cal_h">Calibration Mode</li><li data-i18n="f_sch_h">Schedule</li><li data-i18n="f_sc_h">Apple Shortcuts Support</li><li data-i18n="r_ctrl_h">Sleep Control</li><li data-i18n="f_led_h">Control MagSafe LED</li><li data-i18n="f_lpm_h">Low Power Mode Control</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="why rv" aria-labelledby="why-h">
+    <div class="wrap">
+      <h2 class="sr" id="why-h" data-i18n="why_h">Why it matters</h2>
+      <p><span data-i18n="w_a">A lithium battery ages faster when it is </span><em data-i18n="w_k1">held at 100%</em><span data-i18n="w_b">, and faster still when it </span><em data-i18n="w_k2">runs warm</em><span data-i18n="w_c">. A laptop that lives on the charger spends most of its life in both conditions. Voltly keeps the charge lower and backs off when the battery gets hot.</span></p>
+    </div>
+  </section>
+
+  <section id="features" aria-labelledby="feat-h">
+    <div class="wrap">
+      <h2 id="feat-h" class="rv" data-i18n="feat_h">Everything lives in one small menu.</h2>
+      <p class="sec-lead rv" data-i18n="feat_lead">Start with the limit. Add the rest only when you want it.</p>
+      <div class="bento">
+        <article class="card s7 rv">
+          <div class="ill">
+            <div class="big num" aria-hidden="true">80%</div>
+          </div>
+          <div>
+            <div class="track-bar" aria-hidden="true" style="margin-block-end:28px"><i></i><b></b></div>
+            <h3 data-i18n="f_limit_h">Charge Limiter</h3>
+            <p data-i18n="f_limit_p">Stop charging at the percentage you choose, anywhere from 20% to 100%.</p>
+          </div>
+        </article>
+        <article class="card s5 rv">
+          <div class="ill" aria-hidden="true">
+            <div class="track-bar"><i style="--v:78%"></i><i class="band"></i></div>
+            <div class="scale"><span class="num">75%</span><span class="num">80%</span></div>
+          </div>
+          <div>
+            <h3 data-i18n="pop_sailing">Sailing Mode</h3>
+            <p data-i18n="f_sail_p">After reaching the limit, wait until the battery drops a few percent before charging again, avoiding constant micro top-ups.</p>
+          </div>
+        </article>
+        <article class="card warm s4 rv">
+          <div class="ill" aria-hidden="true">
+            <div class="track-bar heat-bar"><i></i><b></b></div>
+            <div class="scale"><span class="num">20°C</span><span class="num" style="color:var(--warm)">35°C</span><span class="num">45°C</span></div>
+          </div>
+          <div>
+            <h3 data-i18n="pop_heat">Heat Protection</h3>
+            <p data-i18n="f_heat_p">Pause charging when the battery gets hot. The default threshold is 35°C.</p>
+          </div>
+        </article>
+        <article class="card s4 rv">
+          <div class="ill" aria-hidden="true">
+            <div class="track-bar"><i></i><i class="ext"></i><b></b></div>
+            <div class="scale"><span class="num">80%</span><span class="num">100%</span></div>
+          </div>
+          <div>
+            <h3 data-i18n="pop_topup">Top Up</h3>
+            <p data-i18n="f_top_p">Charge to 100% once before a trip, then return to the limit.</p>
+          </div>
+        </article>
+        <article class="card s4 rv">
+          <div class="ill" aria-hidden="true">
+            <div class="track-bar drain"><i></i><u></u><b></b></div>
+            <div class="scale"><span class="num">80%</span><span class="num">100%</span></div>
+          </div>
+          <div>
+            <h3 data-i18n="f_dis_h">Discharge and Automatic Discharge</h3>
+            <p data-i18n="f_dis_p">Run on battery while plugged in until the charge is back at your limit.</p>
+          </div>
+        </article>
+        <article class="card s8 rv">
+          <h3 data-i18n="c6_h">Automation</h3>
+          <div class="auto-grid small">
+            <div>
+              <div class="week" aria-hidden="true"><i class="on"></i><i></i><i class="on"></i><i></i><i></i><i class="on"></i><i></i></div>
+              <h4 style="margin-block-start:20px" data-i18n="f_sch_h">Schedule</h4>
+              <p style="margin-block-start:0" data-i18n="f_sch_p">Run Top Up, Discharge, Calibrate or a limit change at the days and times you set.</p>
+            </div>
+            <div>
+              <h4 data-i18n="f_sc_h">Apple Shortcuts Support</h4>
+              <p style="margin-block-start:0" data-i18n="f_sc_p">Five actions you can use in your own shortcuts.</p>
+              <ul class="pills">
+                <li data-i18n="sc1">Set Charge Limit</li>
+                <li data-i18n="sc2">Top Up Battery</li>
+                <li data-i18n="sc3">Discharge Battery to Limit</li>
+                <li data-i18n="sc4">Start Battery Calibration</li>
+                <li data-i18n="sc5">Return to Charge Limit</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+        <article class="card s4 rv">
+          <div class="ill cal" aria-hidden="true">
+            <svg viewBox="0 0 240 80" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 76H236M4 4H236" stroke="rgba(246,245,241,0.09)" stroke-width="1" stroke-dasharray="4 6"/><path d="M6 8 120 72 234 8" stroke="#34D36B" stroke-width="2"/></svg>
+          </div>
+          <div>
+            <h3 data-i18n="f_cal_h">Calibration Mode</h3>
+            <p data-i18n="f_cal_p">A full charge and discharge cycle to keep the percentage reading accurate.</p>
+          </div>
+        </article>
+        <article class="card s12 rv">
+          <h3 data-i18n="rest_h">And the rest</h3>
+          <dl class="dl-list">
+            <div><dt data-i18n="r_sleep_h">Stop Charging when Sleeping</dt><dd data-i18n="r_sleep_p">Charging stops when the Mac goes to sleep.</dd></div>
+            <div><dt data-i18n="r_ctrl_h">Sleep Control</dt><dd data-i18n="r_ctrl_p">Control what happens to charging while the Mac sleeps.</dd></div>
+            <div><dt><span data-i18n="f_led_h">Control MagSafe LED</span><span class="dots" aria-hidden="true"><i class="g"></i><i class="o"></i><i class="x"></i></span></dt><dd data-i18n="f_led_p">Green when holding, orange when charging, off when discharging.</dd></div>
+            <div><dt data-i18n="f_lpm_h">Low Power Mode Control</dt><dd data-i18n="f_lpm_p">Always on, always off, or only when running on battery.</dd></div>
+            <div><dt data-i18n="f_clam_h">Discharge in Clamshell Mode</dt><dd data-i18n="f_clam_p">Optional, for setups where the lid stays closed.</dd></div>
+            <div><dt data-i18n="f_icons_h">Customizable Menu Bar Icons</dt><dd data-i18n="f_icons_p">Choose how Voltly appears in your menu bar.</dd></div>
+            <div><dt data-i18n="f_pop_h">Customizable Popover</dt><dd data-i18n="f_pop_p">Keep the controls you use and hide the ones you do not.</dd></div>
+          </dl>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <h2 id="how-h" class="rv" data-i18n="how_h">Three steps, then forget it.</h2>
+      <div class="steps">
+        <article class="step rv">
+          <h3 data-i18n="s1_h">Install and approve the helper</h3>
+          <p data-i18n="s1_p">On first launch Voltly asks for an admin password to install a small helper that controls charging.</p>
+        </article>
+        <article class="step rv">
+          <h3 data-i18n="s2_h">Pick a limit</h3>
+          <p data-i18n="s2_p">Open the menu bar icon and drag the slider to the percentage you want.</p>
+        </article>
+        <article class="step rv">
+          <h3 data-i18n="s3_h">Leave it plugged in</h3>
+          <p data-i18n="s3_p">Voltly holds the battery at your limit and gets out of the way.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="setup" aria-labelledby="setup-h">
+    <div class="wrap">
+      <div class="rv">
+        <h2 id="setup-h" data-i18n="setup_h">Always on the charger?</h2>
+        <p class="sec-lead" data-i18n="setup_p">This is the setup we recommend for a Mac that rarely leaves its desk.</p>
+      </div>
+      <ul class="recipe rv">
+        <li><span data-i18n="pop_limit">Charge limit</span><span class="pillv">80%</span></li>
+        <li><span data-i18n="pop_sailing">Sailing Mode</span><span class="pillv" data-i18n="v_on">On</span></li>
+        <li><span data-i18n="pop_heat">Heat Protection</span><span class="pillv" data-i18n="v_on">On</span></li>
+        <li><span data-i18n="st_login">Launch at login</span><span class="pillv" data-i18n="v_on">On</span></li>
+      </ul>
+      <p class="tip rv" data-i18n="tip_p">Before a trip, use Top Up to charge to 100% once. Voltly returns to your limit afterwards.</p>
+    </div>
+  </section>
+
+  <section id="faq" class="faq" aria-labelledby="faq-h">
+    <div class="wrap">
+      <h2 id="faq-h" class="rv" data-i18n="faq_h">Questions, answered.</h2>
+      <div class="faq-list rv">
+        <details open>
+          <summary data-i18n="q1">Is it safe for my battery?</summary>
+          <p data-i18n="a1">Voltly only stops charging earlier than 100%. It does not push the battery beyond what macOS allows, and holding a lower charge is gentler on a lithium battery.</p>
+        </details>
+        <details>
+          <summary data-i18n="q2">Why does it need my password?</summary>
+          <p data-i18n="a2">Controlling charging means changing low-level power settings that only an administrator can change. On first launch Voltly asks for your admin password to install a small helper that controls charging.</p>
+        </details>
+        <details>
+          <summary data-i18n="q3">Does the limit hold while the Mac sleeps?</summary>
+          <p data-i18n="a3">Yes. On recent macOS versions the system keeps enforcing the limit while the Mac sleeps.</p>
+        </details>
+        <details>
+          <summary data-i18n="q4">What happens when I quit Voltly?</summary>
+          <p data-i18n="a4">Normal charging returns within seconds.</p>
+        </details>
+        <details>
+          <summary data-i18n="q5">Which Macs are supported?</summary>
+          <p data-i18n="a5">Macs with Apple Silicon running macOS 13 or later. Intel Macs are not supported.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" aria-labelledby="cta-h">
+    <div class="wrap rv">
+      <h2 id="cta-h" data-i18n="cta_h">Give your battery a limit.</h2>
+      <a class="btn lg dl" href="https://github.com/0xHamzaDev/Voltly/releases/latest">
+        <span class="ico" aria-hidden="true">
+          <svg class="i1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
+          <svg class="i2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-5-5m5 5 5-5M4 21h16"/></svg>
+        </span>
+        <span data-i18n="dl">Download</span>
+      </a>
+      <ul class="req">
+        <li data-i18n="req1">macOS 13 or later</li>
+        <li data-i18n="req2">Apple Silicon</li>
+        <li data-i18n="req3">Version 2.0 Alpha</li>
+      </ul>
+    </div>
+    <div class="word" aria-hidden="true">Voltly</div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Voltly <span class="num">2026</span></span>
+    <a href="https://github.com/0xHamzaDev/Voltly/releases" data-i18n="foot_link">Releases on GitHub</a>
+  </div>
+</footer>
+
+<script>
+const dict = {
+  en: {
+    title: "Voltly: a battery limiter for your MacBook",
+    nav_features: "Features",
+    nav_how: "How it works",
+    nav_faq: "FAQ",
+    ver: "2.0 Alpha",
+    lang_btn: "العربية",
+    dl: "Download",
+    h1a: "A plugged-in MacBook",
+    h1b: "needs a ",
+    h1m: "healthy",
+    h1c: " battery.",
+    hero_p: "Voltly sits in your menu bar and stops charging at the level you choose, so the battery is not held at 100% all day.",
+    req1: "macOS 13 or later",
+    req2: "Apple Silicon",
+    req3: "Version 2.0 Alpha",
+    mb1: "File",
+    mb2: "Edit",
+    mb3: "View",
+    pop_limit: "Charge limit",
+    pop_topup: "Top Up",
+    pop_discharge: "Discharge",
+    pop_calibrate: "Calibrate",
+    pop_sailing: "Sailing Mode",
+    pop_heat: "Heat Protection",
+    pop_auto: "Automatic Discharge",
+    st_charge: "Charging to {l}",
+    st_hold: "Holding at {l}",
+    st_top: "Top Up · Charging to 100%",
+    st_dis: "Discharging to {l}",
+    st_sail: "Sailing · charging resumes at {n}",
+    st_cal: "Calibrating",
+    demo_hint: "It's interactive. Drag the slider.",
+    why_h: "Why it matters",
+    w_a: "A lithium battery ages faster when it is ",
+    w_k1: "held at 100%",
+    w_b: ", and faster still when it ",
+    w_k2: "runs warm",
+    w_c: ". A laptop that lives on the charger spends most of its life in both conditions. Voltly keeps the charge lower and backs off when the battery gets hot.",
+    feat_h: "Everything lives in one small menu.",
+    feat_lead: "Start with the limit. Add the rest only when you want it.",
+    f_limit_h: "Charge Limiter",
+    f_limit_p: "Stop charging at the percentage you choose, anywhere from 20% to 100%.",
+    f_sail_p: "After reaching the limit, wait until the battery drops a few percent before charging again, avoiding constant micro top-ups.",
+    f_heat_p: "Pause charging when the battery gets hot. The default threshold is 35°C.",
+    f_top_p: "Charge to 100% once before a trip, then return to the limit.",
+    f_dis_h: "Discharge and Automatic Discharge",
+    f_dis_p: "Run on battery while plugged in until the charge is back at your limit.",
+    c6_h: "Automation",
+    f_sch_h: "Schedule",
+    f_sch_p: "Run Top Up, Discharge, Calibrate or a limit change at the days and times you set.",
+    f_sc_h: "Apple Shortcuts Support",
+    f_sc_p: "Five actions you can use in your own shortcuts.",
+    sc1: "Set Charge Limit",
+    sc2: "Top Up Battery",
+    sc3: "Discharge Battery to Limit",
+    sc4: "Start Battery Calibration",
+    sc5: "Return to Charge Limit",
+    f_cal_h: "Calibration Mode",
+    f_cal_p: "A full charge and discharge cycle to keep the percentage reading accurate.",
+    rest_h: "And the rest",
+    r_sleep_h: "Stop Charging when Sleeping",
+    r_sleep_p: "Charging stops when the Mac goes to sleep.",
+    r_ctrl_h: "Sleep Control",
+    r_ctrl_p: "Control what happens to charging while the Mac sleeps.",
+    f_led_h: "Control MagSafe LED",
+    f_led_p: "Green when holding, orange when charging, off when discharging.",
+    f_lpm_h: "Low Power Mode Control",
+    f_lpm_p: "Always on, always off, or only when running on battery.",
+    f_clam_h: "Discharge in Clamshell Mode",
+    f_clam_p: "Optional, for setups where the lid stays closed.",
+    f_icons_h: "Customizable Menu Bar Icons",
+    f_icons_p: "Choose how Voltly appears in your menu bar.",
+    f_pop_h: "Customizable Popover",
+    f_pop_p: "Keep the controls you use and hide the ones you do not.",
+    how_h: "Three steps, then forget it.",
+    s1_h: "Install and approve the helper",
+    s1_p: "On first launch Voltly asks for an admin password to install a small helper that controls charging.",
+    s2_h: "Pick a limit",
+    s2_p: "Open the menu bar icon and drag the slider to the percentage you want.",
+    s3_h: "Leave it plugged in",
+    s3_p: "Voltly holds the battery at your limit and gets out of the way.",
+    setup_h: "Always on the charger?",
+    setup_p: "This is the setup we recommend for a Mac that rarely leaves its desk.",
+    st_login: "Launch at login",
+    v_on: "On",
+    tip_p: "Before a trip, use Top Up to charge to 100% once. Voltly returns to your limit afterwards.",
+    faq_h: "Questions, answered.",
+    q1: "Is it safe for my battery?",
+    a1: "Voltly only stops charging earlier than 100%. It does not push the battery beyond what macOS allows, and holding a lower charge is gentler on a lithium battery.",
+    q2: "Why does it need my password?",
+    a2: "Controlling charging means changing low-level power settings that only an administrator can change. On first launch Voltly asks for your admin password to install a small helper that controls charging.",
+    q3: "Does the limit hold while the Mac sleeps?",
+    a3: "Yes. On recent macOS versions the system keeps enforcing the limit while the Mac sleeps.",
+    q4: "What happens when I quit Voltly?",
+    a4: "Normal charging returns within seconds.",
+    q5: "Which Macs are supported?",
+    a5: "Macs with Apple Silicon running macOS 13 or later. Intel Macs are not supported.",
+    cta_h: "Give your battery a limit.",
+    foot_link: "Releases on GitHub"
+  },
+  ar: {
+    title: "Voltly: أداة لحماية بطارية MacBook",
+    nav_features: "المزايا",
+    nav_how: "طريقة العمل",
+    nav_faq: "الأسئلة الشائعة",
+    ver: "2.0 Alpha",
+    lang_btn: "English",
+    dl: "تنزيل",
+    h1a: "جهاز MacBook الموصول بالشاحن",
+    h1b: "يحتاج إلى بطارية ",
+    h1m: "سليمة",
+    h1c: " دائماً.",
+    hero_p: "يعمل Voltly من شريط القوائم ويوقف الشحن عند النسبة التي تختارها، فلا تبقى البطارية ممتلئة بالكامل طوال اليوم.",
+    req1: "macOS 13 أو أحدث",
+    req2: "Apple Silicon",
+    req3: "الإصدار 2.0 Alpha",
+    mb1: "ملف",
+    mb2: "تحرير",
+    mb3: "عرض",
+    pop_limit: "حد الشحن",
+    pop_topup: "Top Up",
+    pop_discharge: "تفريغ",
+    pop_calibrate: "معايرة",
+    pop_sailing: "Sailing Mode",
+    pop_heat: "الحماية من الحرارة",
+    pop_auto: "التفريغ التلقائي",
+    st_charge: "جارٍ الشحن إلى {l}",
+    st_hold: "ثابت عند {l}",
+    st_top: "Top Up · جارٍ الشحن إلى 100%",
+    st_dis: "جارٍ التفريغ إلى {l}",
+    st_sail: "Sailing · يستأنف الشحن عند {n}",
+    st_cal: "جارٍ المعايرة",
+    demo_hint: "التجربة تفاعلية. حرّك المنزلق.",
+    why_h: "لماذا يهم ذلك",
+    w_a: "تشيخ بطارية الليثيوم أسرع حين ",
+    w_k1: "تبقى عند 100%",
+    w_b: "، وأسرع من ذلك حين ",
+    w_k2: "ترتفع حرارتها",
+    w_c: ". والحاسوب الذي يعيش على الشاحن يقضي معظم عمره في الحالتين معاً. يُبقي Voltly الشحن عند مستوى أقل ويتوقف عن الشحن إذا سخنت البطارية.",
+    feat_h: "كل شيء في قائمة صغيرة واحدة.",
+    feat_lead: "ابدأ بحد الشحن، وأضف بقية الخيارات متى احتجتها.",
+    f_limit_h: "محدِّد الشحن",
+    f_limit_p: "أوقف الشحن عند النسبة التي تختارها، من 20% إلى 100%.",
+    f_sail_p: "بعد الوصول إلى الحد، ينتظر Voltly حتى تنخفض البطارية بضع نقاط مئوية قبل أن يستأنف الشحن، فلا تتكرر عمليات الشحن القصيرة.",
+    f_heat_p: "يوقف الشحن مؤقتاً عندما ترتفع حرارة البطارية. الحد الافتراضي 35°C.",
+    f_top_p: "اشحن إلى 100% مرة واحدة قبل السفر، ثم يعود الجهاز إلى حد الشحن.",
+    f_dis_h: "التفريغ والتفريغ التلقائي",
+    f_dis_p: "شغّل الجهاز على البطارية وهو موصول بالشاحن حتى تعود النسبة إلى الحد الذي حددته.",
+    c6_h: "الأتمتة",
+    f_sch_h: "الجدولة",
+    f_sch_p: "نفّذ Top Up أو التفريغ أو المعايرة أو غيّر حد الشحن في الأيام والأوقات التي تحددها.",
+    f_sc_h: "دعم Apple Shortcuts",
+    f_sc_p: "خمسة إجراءات يمكنك استخدامها في اختصاراتك الخاصة.",
+    sc1: "Set Charge Limit",
+    sc2: "Top Up Battery",
+    sc3: "Discharge Battery to Limit",
+    sc4: "Start Battery Calibration",
+    sc5: "Return to Charge Limit",
+    f_cal_h: "وضع المعايرة",
+    f_cal_p: "دورة شحن وتفريغ كاملة لتبقى قراءة النسبة المئوية دقيقة.",
+    rest_h: "وأكثر من ذلك",
+    r_sleep_h: "إيقاف الشحن أثناء السكون",
+    r_sleep_p: "يتوقف الشحن عندما يدخل الجهاز في وضع السكون.",
+    r_ctrl_h: "التحكم في السكون",
+    r_ctrl_p: "تحكّم في سلوك الشحن أثناء سكون الجهاز.",
+    f_led_h: "التحكم في مؤشر MagSafe",
+    f_led_p: "أخضر عند الثبات، برتقالي أثناء الشحن، ومطفأ أثناء التفريغ.",
+    f_lpm_h: "التحكم في وضع الطاقة المنخفضة",
+    f_lpm_p: "مفعّل دائماً، أو متوقف دائماً، أو يعمل فقط على البطارية.",
+    f_clam_h: "التفريغ في وضع الغطاء المغلق",
+    f_clam_p: "خيار اختياري للإعدادات التي يبقى فيها الغطاء مغلقاً.",
+    f_icons_h: "أيقونات شريط القوائم قابلة للتخصيص",
+    f_icons_p: "اختر شكل ظهور Voltly في شريط القوائم.",
+    f_pop_h: "نافذة منبثقة قابلة للتخصيص",
+    f_pop_p: "أبقِ الأدوات التي تستخدمها وأخفِ ما لا تحتاجه.",
+    how_h: "ثلاث خطوات ثم انسَ الأمر.",
+    s1_h: "ثبّت التطبيق ووافق على المساعد",
+    s1_p: "عند أول تشغيل يطلب Voltly كلمة مرور المسؤول لتثبيت مساعد صغير يتحكم في الشحن.",
+    s2_h: "اختر الحد",
+    s2_p: "افتح أيقونة شريط القوائم واسحب المنزلق إلى النسبة التي تريدها.",
+    s3_h: "اترك الجهاز على الشاحن",
+    s3_p: "يُبقي Voltly البطارية عند الحد الذي اخترته ولا يزعجك بشيء.",
+    setup_h: "جهازك دائماً على الشاحن؟",
+    setup_p: "هذا هو الإعداد الذي نوصي به للجهاز الذي نادراً ما يغادر مكتبه.",
+    st_login: "التشغيل عند تسجيل الدخول",
+    v_on: "مفعّل",
+    tip_p: "قبل السفر، استخدم Top Up للشحن إلى 100% مرة واحدة، ثم يعود Voltly إلى الحد الذي حددته.",
+    faq_h: "أسئلة وأجوبة.",
+    q1: "هل هو آمن لبطاريتي؟",
+    a1: "يكتفي Voltly بإيقاف الشحن قبل الوصول إلى 100%. ولا يدفع البطارية إلى ما يتجاوز ما يسمح به macOS، كما أن إبقاء الشحن عند مستوى أقل ألطف على بطارية الليثيوم.",
+    q2: "لماذا يحتاج إلى كلمة المرور؟",
+    a2: "التحكم في الشحن يتطلب تغيير إعدادات طاقة منخفضة المستوى لا يستطيع تغييرها إلا المسؤول. عند أول تشغيل يطلب Voltly كلمة مرور المسؤول لتثبيت مساعد صغير يتحكم في الشحن.",
+    q3: "هل يبقى الحد مطبَّقاً أثناء سكون الجهاز؟",
+    a3: "نعم. في إصدارات macOS الحديثة يواصل النظام فرض الحد أثناء سكون الجهاز.",
+    q4: "ماذا يحدث عند إغلاق Voltly؟",
+    a4: "يعود الشحن العادي خلال ثوانٍ.",
+    q5: "ما أجهزة Mac المدعومة؟",
+    a5: "أجهزة Mac المزودة بمعالج Apple Silicon مع macOS 13 أو أحدث. أجهزة Mac ذات معالج Intel غير مدعومة.",
+    cta_h: "امنح بطاريتك حداً.",
+    foot_link: "الإصدارات على GitHub"
+  }
+};
+
+const st = { pct: 72, limit: 80, mode: "normal", phase: "down", held: false, sail: true, heat: true, auto: false, key: "st_charge" };
+let lang = "en";
+let ticks = 0;
+const $ = (id) => document.getElementById(id);
+const iso = (s) => s.replace(/\d+%/g, "⁦$&⁩");
+
+function status() {
+  const n = iso(Math.max(st.limit - 5, 0) + "%");
+  return iso(dict[lang][st.key]).replace("{l}", iso(st.limit + "%")).replace("{n}", n);
+}
+
+function render() {
+  $("pct").textContent = st.pct;
+  $("mbPct").textContent = st.pct + "%";
+  $("fill").style.inlineSize = st.pct + "%";
+  $("mark").style.insetInlineStart = st.limit + "%";
+  $("limitVal").textContent = st.limit + "%";
+  $("limit").style.setProperty("--p", ((st.limit - 20) / 80) * 100 + "%");
+  $("status").textContent = status();
+  $("bTop").setAttribute("aria-pressed", String(st.mode === "top"));
+  $("bDis").setAttribute("aria-pressed", String(st.mode === "dis"));
+  $("bCal").setAttribute("aria-pressed", String(st.mode === "cal"));
+}
+
+function drift() {
+  if (ticks % 4 === 0) st.pct -= 1;
+}
+
+function step() {
+  ticks += 1;
+  if (st.mode === "top" && st.pct >= 100) st.mode = "normal";
+  if (st.mode === "dis" && st.pct <= st.limit) st.mode = "normal";
+  if (st.mode === "cal" && st.phase === "down" && st.pct <= 5) st.phase = "up";
+  if (st.mode === "cal" && st.phase === "up" && st.pct >= 100) st.mode = "normal";
+  if (st.mode === "top") {
+    st.pct += 1;
+    st.key = "st_top";
+  } else if (st.mode === "dis") {
+    st.pct -= 1;
+    st.key = "st_dis";
+  } else if (st.mode === "cal") {
+    st.pct += st.phase === "up" ? 2 : -2;
+    st.key = "st_cal";
+  } else if (st.pct > st.limit) {
+    if (st.auto) {
+      st.pct -= 1;
+      st.key = "st_dis";
+    } else {
+      st.key = "st_hold";
+      drift();
+    }
+  } else if (st.pct < st.limit) {
+    if (st.held && st.sail && st.pct > st.limit - 5) {
+      st.key = "st_sail";
+      drift();
+    } else {
+      st.held = false;
+      st.pct += 1;
+      st.key = "st_charge";
+    }
+  } else {
+    st.held = true;
+    if (st.sail) {
+      st.key = "st_sail";
+      drift();
+    } else {
+      st.key = "st_hold";
+    }
+  }
+  st.pct = Math.min(100, Math.max(0, st.pct));
+  render();
+}
+
+function apply(l) {
+  lang = l;
+  const d = dict[l];
+  document.documentElement.lang = l;
+  document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.textContent = iso(d[el.dataset.i18n]);
+  });
+  const b = $("lang");
+  b.setAttribute("aria-pressed", String(l === "ar"));
+  b.lang = l === "ar" ? "en" : "ar";
+  render();
+}
+
+function initialLang() {
+  try {
+    const saved = localStorage.getItem("voltly-lang");
+    if (saved === "en" || saved === "ar") return saved;
+  } catch (e) {}
+  return (navigator.language || "en").toLowerCase().startsWith("ar") ? "ar" : "en";
+}
+
+$("lang").addEventListener("click", () => {
+  const next = lang === "ar" ? "en" : "ar";
+  apply(next);
+  try {
+    localStorage.setItem("voltly-lang", next);
+  } catch (e) {}
+});
+
+$("limit").addEventListener("input", (e) => {
+  st.limit = Number(e.target.value);
+  step();
+});
+
+function toggleMode(mode) {
+  if (st.mode === mode) {
+    st.mode = "normal";
+  } else if (mode === "dis" && st.pct <= st.limit) {
+    return;
+  } else {
+    st.mode = mode;
+    st.phase = "down";
+  }
+  step();
+}
+
+$("bTop").addEventListener("click", () => toggleMode("top"));
+$("bDis").addEventListener("click", () => toggleMode("dis"));
+$("bCal").addEventListener("click", () => toggleMode("cal"));
+
+[["swSail", "sail"], ["swHeat", "heat"], ["swAuto", "auto"]].forEach(([id, k]) => {
+  $(id).addEventListener("click", () => {
+    st[k] = !st[k];
+    $(id).setAttribute("aria-checked", String(st[k]));
+    step();
+  });
+});
+
+apply(initialLang());
+step();
+setInterval(step, 600);
+</script>
+</body>
+</html>
