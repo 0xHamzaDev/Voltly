@@ -1,6 +1,6 @@
-import type { Dict } from '../i18n'
+import type { Copy } from '../i18n'
 
-export const Footer = ({ t }: { t: Dict }) => (
+export const Footer = ({ t }: { t: Copy }) => (
   <footer className="border-t border-line py-6 text-sm text-ink-3">
     <div className="wrap flex flex-wrap justify-between gap-4">
       <span>

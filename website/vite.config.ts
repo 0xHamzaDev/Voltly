@@ -8,7 +8,7 @@ export default defineConfig({
     tanstackStart({
       router: { generatedRouteTree: '../routeTree.gen.ts', routeTreeFileHeader: [] },
       prerender: { enabled: true },
-      pages: [{ path: '/' }, { path: '/en' }, { path: '/ar' }],
+      pages: [{ path: '/' }],
     }),
     viteReact(),
     tailwindcss(),

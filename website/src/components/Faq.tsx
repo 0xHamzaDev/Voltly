@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react'
-import type { Dict } from '../i18n'
+import type { Copy } from '../i18n'
 
-export const Faq = ({ t }: { t: Dict }) => (
+export const Faq = ({ t }: { t: Copy }) => (
   <section id="faq" className="pt-(--sec)" aria-labelledby="faq-h">
     <div className="wrap max-w-[860px]">
       <h2 id="faq-h" className="rv">

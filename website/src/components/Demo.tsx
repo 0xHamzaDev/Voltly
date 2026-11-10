@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, Battery, RotateCw, Zap } from 'lucide-react'
 import { useEffect, useState, type CSSProperties } from 'react'
-import type { Dict } from '../i18n'
+import type { Copy } from '../i18n'
 
 type Mode = 'normal' | 'top' | 'dis' | 'cal'
 type StatusKey = 'st_charge' | 'st_hold' | 'st_top' | 'st_dis' | 'st_sail' | 'st_cal'
@@ -80,18 +80,7 @@ const tick = (s: State): State => {
   return n
 }
 
-const isolate = (text: string) =>
-  text.split(/(\d+%)/).map((part, i) =>
-    i % 2 ? (
-      <bdi key={i} dir="ltr">
-        {part}
-      </bdi>
-    ) : (
-      part
-    ),
-  )
-
-export const Demo = ({ t }: { t: Dict }) => {
+export const Demo = ({ t }: { t: Copy }) => {
   const [s, setS] = useState(initial)
 
   useEffect(() => {
@@ -136,20 +125,20 @@ export const Demo = ({ t }: { t: Dict }) => {
           </span>
           <span className="flex items-center gap-1.5">
             <Battery size={20} strokeWidth={1.5} />
-            <bdi dir="ltr">{s.pct}%</bdi>
+            {s.pct}%
           </span>
-          <bdi dir="ltr">9:41</bdi>
+          9:41
         </div>
         <div className="absolute top-[52px] end-24 w-[300px] rounded-2xl border border-line bg-white/80 p-5 text-sm leading-[1.4] shadow-deep backdrop-blur-[24px] backdrop-saturate-[160%] max-[760px]:start-0 max-[760px]:end-0 max-[760px]:mx-auto">
           <div className="font-round text-[64px] leading-none font-bold tracking-[-0.04em]">
-            <bdi dir="ltr">{s.pct}%</bdi>
+            {s.pct}%
           </div>
           <div className="relative my-4 h-3.5 rounded-full bg-surface-2">
             <i className="absolute inset-y-0 start-0 rounded-full bg-charge transition-[inline-size] duration-500 ease-linear" style={{ inlineSize: `${s.pct}%` }} />
             <b className="absolute inset-y-[-5px] w-0.5 rounded-[1px] bg-ink transition-[inset-inline-start] duration-200" style={{ insetInlineStart: `${s.limit}%` }} />
           </div>
           <p className="min-h-5 font-semibold text-ink" aria-live="polite">
-            {isolate(status)}
+            {status}
           </p>
           <div className="mt-5 mb-1.5 flex items-baseline justify-between text-[13px] text-ink-2">
             <label htmlFor="limit">{t.pop_limit}</label>

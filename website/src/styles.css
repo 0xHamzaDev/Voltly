@@ -1,26 +1,4 @@
 @import 'tailwindcss';
-@font-face {
-  font-family: 'Thmanyah Sans';
-  src: url('./fonts/thmanyahsans-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Thmanyah Sans';
-  src: url('./fonts/thmanyahsans-Medium.woff2') format('woff2');
-  font-weight: 500 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Thmanyah Sans';
-  src: url('./fonts/thmanyahsans-Bold.woff2') format('woff2');
-  font-weight: 700 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   color-scheme: light;
   --base: #f2f6fb;
@@ -41,25 +19,8 @@
   --font: system-ui, -apple-system, 'SF Pro Display', sans-serif;
   --mono: ui-monospace, 'SF Mono', Menlo, monospace;
   --round: ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
-  --d: 1;
-  --end: right;
   --sec: 96px;
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:root:lang(ar) {
-  --font: 'Thmanyah Sans', system-ui, sans-serif;
-  --round: 'Thmanyah Sans', system-ui, sans-serif;
-  --mono: 'Thmanyah Sans', ui-monospace, 'SF Mono', Menlo, monospace;
-}
-
-:root[dir='rtl'] {
-  --d: -1;
-  --end: left;
-}
-
-:root[dir='rtl'] * {
-  letter-spacing: normal !important;
 }
 
 @media (min-width: 900px) {
@@ -100,8 +61,6 @@
 }
 
 @utility num {
-  direction: ltr;
-  unicode-bidi: isolate;
   display: inline-block;
 }
 
@@ -124,9 +83,6 @@
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
-  }
-  :root[dir='rtl'] body {
-    line-height: 1.75;
   }
   :focus-visible {
     outline: 2px solid var(--accent);
@@ -155,15 +111,6 @@
     line-height: 1.15;
     letter-spacing: -0.02em;
   }
-  :root[dir='rtl'] h1 {
-    line-height: 1.25;
-  }
-  :root[dir='rtl'] h2 {
-    line-height: 1.3;
-  }
-  :root[dir='rtl'] h3 {
-    line-height: 1.4;
-  }
 }
 
 @layer components {
@@ -175,9 +122,6 @@
     background: var(--ice);
     color: var(--ink);
     transform: rotate(-1.5deg) skewX(-5deg);
-  }
-  :root[dir='rtl'] .hl {
-    transform: rotate(1.5deg) skewX(5deg);
   }
 
   .ico {
@@ -196,13 +140,13 @@
   .ico .i2 {
     opacity: 0;
     filter: blur(4px);
-    transform: translateX(calc(var(--d) * 14px));
+    transform: translateX(14px);
   }
   .btn:hover .i1,
   .btn:focus-visible .i1 {
     opacity: 0;
     filter: blur(4px);
-    transform: translateX(calc(var(--d) * -14px));
+    transform: translateX(-14px);
   }
   .btn:hover .i2,
   .btn:focus-visible .i2 {
@@ -213,9 +157,6 @@
 
   .bento {
     --gx: 100%;
-  }
-  :root[dir='rtl'] .bento {
-    --gx: 0%;
   }
   .card {
     position: relative;
@@ -279,12 +220,12 @@
   .slider::-webkit-slider-runnable-track {
     block-size: 6px;
     border-radius: 3px;
-    background: linear-gradient(to var(--end), var(--accent) var(--p), var(--surface-2) var(--p));
+    background: linear-gradient(to right, var(--accent) var(--p), var(--surface-2) var(--p));
   }
   .slider::-moz-range-track {
     block-size: 6px;
     border-radius: 3px;
-    background: linear-gradient(to var(--end), var(--accent) var(--p), var(--surface-2) var(--p));
+    background: linear-gradient(to right, var(--accent) var(--p), var(--surface-2) var(--p));
   }
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -318,7 +259,7 @@
     transition: transform 0.2s;
   }
   [aria-checked='true'] > .sw::after {
-    transform: translateX(calc(var(--d) * 16px));
+    transform: translateX(16px);
   }
 }
 

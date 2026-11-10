@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { Dict } from '../i18n'
+import type { Copy } from '../i18n'
 
 const Card = ({ className, children }: { className: string; children: ReactNode }) => (
   <article className={`card rv ${className}`}>{children}</article>
@@ -21,13 +21,13 @@ const Marker = ({ className }: { className: string }) => (
   <b className={`absolute inset-y-[-7px] w-[3px] rounded-sm ${className}`} />
 )
 
-export const Features = ({ t }: { t: Dict }) => (
+export const Features = ({ t }: { t: Copy }) => (
   <section id="features" className="pt-(--sec)" aria-labelledby="feat-h">
     <div className="wrap">
       <h2 id="feat-h" className="rv">
         {t.feat_h}
       </h2>
-      <p className="rv mt-[18px] max-w-[34em] text-[clamp(18px,1.7vw,21px)] leading-normal text-ink-2 rtl:leading-[1.75]">{t.feat_lead}</p>
+      <p className="rv mt-[18px] max-w-[34em] text-[clamp(18px,1.7vw,21px)] leading-normal text-ink-2">{t.feat_lead}</p>
       <div className="bento mt-14 grid gap-4 min-[900px]:grid-cols-12">
         <Card className="tint-ice min-[900px]:col-span-7">
           <div className="num text-[clamp(64px,9vw,120px)] leading-[0.9] font-extrabold tracking-[-0.06em] text-ink" aria-hidden="true">
@@ -125,7 +125,7 @@ export const Features = ({ t }: { t: Dict }) => (
               <p className="text-ink-2">{t.f_sc_p}</p>
               <ul className="mt-4 flex flex-wrap gap-2">
                 {[t.sc1, t.sc2, t.sc3, t.sc4, t.sc5].map((item) => (
-                  <li key={item} dir="ltr" className="rounded-full border border-line bg-surface-2 px-4 py-2.5 font-mono text-[13px]">
+                  <li key={item} className="rounded-full border border-line bg-surface-2 px-4 py-2.5 font-mono text-[13px]">
                     {item}
                   </li>
                 ))}
