@@ -36,7 +36,7 @@ Lithium batteries age faster when they sit at a full charge, and faster still wh
 
 ## Install
 
-1. Download `Voltly-2.0-alpha.dmg` from [Releases](https://github.com/0xHamzaDev/Voltly/releases/latest) and open it.
+1. Download `Voltly-2.0.dmg` from [Releases](https://github.com/0xHamzaDev/Voltly/releases/latest) and open it.
 2. Drag Voltly into Applications and open it.
 3. If macOS blocks it, open System Settings > Privacy & Security and click "Open Anyway". The build is signed with a development certificate and is not notarized.
 4. Enter your admin password once. This installs the helper that controls charging.
